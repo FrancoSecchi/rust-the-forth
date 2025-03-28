@@ -1,11 +1,19 @@
 fn main() {
     let mut number_stack: Vec<i16> = vec![];
-    let string: &str = "1 2 3";
+    let string: &str = "1 2 +";
 
-    for number_str in string.split_whitespace() {        
-        match number_str.parse::<i16>() {
-            Ok(number) => number_stack.push(number),
-            Err(_) => println!("No se pudo convertir: {}", number_str),
+    for token in string.split_whitespace() {        
+        match token.parse::<i16>() {
+            Ok(token) => number_stack.push(token),
+            Err(_) => {
+                if token.len() == 1 {
+                    if token == "+" {
+                        if let (Some(a_val), Some(b_val)) = (number_stack.pop(), number_stack.pop()) {
+                            number_stack.push(b_val + a_val); 
+                        }                     
+                    }
+                }
+            },
         }
     }
     
