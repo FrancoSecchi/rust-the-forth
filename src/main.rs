@@ -14,7 +14,7 @@ fn main() {
 
     let vec_size: i16 = cli_manager::get_stack_size_arg(&args);
 
-    println!("El stack es: {}", vec_size)
+    println!("El tamaño del stack es: {}", vec_size)
 
     /* let path = &args[1];
     open_file(path); */

@@ -37,7 +37,7 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
         match string_split[1].parse::<i16>() {
             Ok(size) => {
                 if convert_bytes_to_elements_amount(size) <= 0 {
-                    return Err("El tamaño especificado no puede ser nulo o menor a cero".into());                                    
+                    return Err("El tamaño especificado no puede ser nulo o menor o igual a uno".into());                                    
                 } else {                    
                     return Ok(());                    
                 }
