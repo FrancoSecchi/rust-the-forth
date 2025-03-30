@@ -1,4 +1,3 @@
-
 /// Tamaño en bytes de un tipo i16 (2 bytes)
 const I16_SIZE: i16 = 2;
 
@@ -14,7 +13,7 @@ const I16_SIZE: i16 = 2;
 /// ```
 /// let elementos = convert_bytes_to_elements_amount(10); // Retorna 5
 /// ```
-fn convert_bytes_to_elements_amount( size: i16) -> i16 {
+fn convert_bytes_to_elements_amount(size: i16) -> i16 {
     size / I16_SIZE
 }
 
@@ -37,18 +36,20 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
         match string_split[1].parse::<i16>() {
             Ok(size) => {
                 if convert_bytes_to_elements_amount(size) <= 0 {
-                    return Err("El tamaño especificado no puede ser nulo o menor o igual a uno".into());                                    
-                } else {                    
-                    return Ok(());                    
+                    return Err(
+                        "El tamaño especificado no puede ser nulo o menor o igual a uno".into(),
+                    );
+                } else {
+                    return Ok(());
                 }
             }
             Err(_) => {
-                return Err("Error al parsear el numero de stack-size".into());                                                    
+                return Err("Error al parsear el numero de stack-size".into());
             }
         }
-    } 
+    }
 
-    Err("Formato inválido: falta el '='".into())       
+    Err("Formato inválido: falta el '='".into())
 }
 
 /// Valida los argumentos pasados al programa
@@ -69,18 +70,17 @@ pub fn validate_command_args(args: &[String]) -> Result<(), String> {
         return Err("No se ha especificado el archivo".into());
     }
 
-    let arg_file = &args[1]; 
+    let arg_file = &args[1];
     if !arg_file.contains(".") {
-        return Err("El primer parametro debe ser el archivo a lee".into());        
+        return Err("El primer parametro debe ser el archivo a lee".into());
     }
-    
-    if args.len() <= 2 {        
+
+    if args.len() <= 2 {
         return Ok(());
-    }    
-    
+    }
+
     validate_stack_size_arg(&args[2])
 }
-
 
 /// Devuelve la cantidad de elementos que permite el valor del argumento del stack-size
 ///
@@ -95,32 +95,31 @@ pub fn validate_command_args(args: &[String]) -> Result<(), String> {
 /// let args: Vec<String> = env::args().collect();
 /// let vec_len = get_size_of_stack(&args);
 /// ```
-pub fn get_size_of_stack(args : &[String]) -> i16 {
+pub fn get_size_of_stack(args: &[String]) -> i16 {
     let default_len = convert_bytes_to_elements_amount(128);
     if args.len() <= 2 {
         return default_len;
     }
 
     let string_split: Vec<&str> = args[2].split('=').collect();
-    
+
     if string_split.len() >= 2 {
         match string_split[1].parse::<i16>() {
             Ok(size) => {
-                return convert_bytes_to_elements_amount(size);                
+                return convert_bytes_to_elements_amount(size);
             }
             Err(_) => {
                 return default_len;
             }
         }
-    } 
+    }
     default_len
-
 }
 
 /// Tests unitarios
-#[cfg(test)] 
+#[cfg(test)]
 mod tests {
-    use super::*; 
+    use super::*;
 
     #[test]
     fn test_convert_bytes_to_elements() {
@@ -130,10 +129,8 @@ mod tests {
 
     #[test]
     fn test_validate_stack_size_arg() {
-        
         assert!(validate_stack_size_arg("stack-size=10").is_ok());
-        
-        
+
         assert!(validate_stack_size_arg("stack-size=0").is_err());
         assert!(validate_stack_size_arg("stack-size=abc").is_err());
         assert!(validate_stack_size_arg("formato-incorrecto").is_err());
@@ -144,12 +141,11 @@ mod tests {
         let args = vec![
             "program_name".to_string(),
             "file.fth".to_string(),
-            "stack-size=20".to_string()
+            "stack-size=20".to_string(),
         ];
-        
-        assert_eq!(get_size_of_stack(&args), 10); 
-        
-        
+
+        assert_eq!(get_size_of_stack(&args), 10);
+
         let args_min = vec!["program_name".to_string()];
         assert_eq!(get_size_of_stack(&args_min), 64);
     }
@@ -159,11 +155,11 @@ mod tests {
         let valid_args = vec![
             "program".to_string(),
             "script.fth".to_string(),
-            "stack-size=128".to_string()
+            "stack-size=128".to_string(),
         ];
-        
+
         let invalid_file_args = vec!["program".to_string(), "nofile".to_string()];
-        
+
         assert!(validate_command_args(&valid_args).is_ok());
         assert!(validate_command_args(&invalid_file_args).is_err());
     }

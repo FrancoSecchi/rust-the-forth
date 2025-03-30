@@ -1,6 +1,6 @@
-use std::env;
-use rust_the_forth::utils::{file_manager, cli_manager};
 use rust_the_forth::core::forth_calculator::ForthCalculator;
+use rust_the_forth::utils::{cli_manager, file_manager};
+use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -14,9 +14,9 @@ fn main() {
         Ok(content_str) => {
             content = content_str;
             false
-        },
+        }
         Err(_) => {
-            content = String::new();  
+            content = String::new();
             true
         }
     };
@@ -25,10 +25,7 @@ fn main() {
         println!("Error al abrir el archivo.");
         return;
     }
-    
-    let forth_calculator = ForthCalculator::new(content, cli_manager::get_size_of_stack(&args));
-    println!("{:#?}", forth_calculator);
 
+    let forth_calculator = ForthCalculator::new(content, cli_manager::get_size_of_stack(&args));
     forth_calculator.run();
-    
 }

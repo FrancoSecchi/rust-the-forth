@@ -1,12 +1,11 @@
-use std::fmt::Error;
 use std::fmt;
+use std::fmt::Error;
 
 #[derive(Debug)]
 pub enum OperationError {
     StackUnderflow,
     DivisionByZero,
 }
-
 
 impl fmt::Display for OperationError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
