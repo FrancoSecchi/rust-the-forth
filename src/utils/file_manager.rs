@@ -7,7 +7,7 @@ use std::path::Path;
 ///
 /// # Ejemplo
 /// ```
-/// let content = file::read_to_string("ejemplo.fth")?;
+/// let content = file_manager::read_to_string("ejemplo.fth")?;
 /// ```
 pub fn read_to_string<P: AsRef<Path>>(path: P) -> io::Result<String> {
     let mut file = File::open(path)?;
