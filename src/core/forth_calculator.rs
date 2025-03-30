@@ -26,7 +26,7 @@ impl ForthCalculator {
                 }
                 Err(_) => {
                     if token.len() == 1 {
-                        if let Some(op) = self.operations.get("+") {
+                        if let Some(op) = self.operations.get(token) {
                             match op.apply(&mut self.stack) {
                                 Ok(_) => {}
                                 Err(error) => {
