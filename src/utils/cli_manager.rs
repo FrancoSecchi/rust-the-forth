@@ -30,7 +30,7 @@ fn convert_bytes_to_elements_amount( size: i16) -> i16 {
 /// ```
 /// let validacion = validate_stack_size_arg(&String::from("stack-size=10"));
 /// ```
-fn validate_stack_size_arg(stack_size_arg: &String) -> Result<(), String> {
+fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
     let string_split: Vec<&str> = stack_size_arg.split('=').collect();
 
     if string_split.len() >= 2 {
@@ -64,7 +64,7 @@ fn validate_stack_size_arg(stack_size_arg: &String) -> Result<(), String> {
 /// let args: Vec<String> = env::args().collect();
 /// let validacion = validate_command_args(&args);
 /// ```
-pub fn validate_command_args(args: &Vec<String>) -> Result<(), String> {
+pub fn validate_command_args(args: &[String]) -> Result<(), String> {
     if args.len() <= 1 {
         return Err("No se ha especificado el archivo".into());
     }
@@ -74,12 +74,33 @@ pub fn validate_command_args(args: &Vec<String>) -> Result<(), String> {
         return Err("El primer parametro debe ser el archivo a lee".into());        
     }
     
-    if args.len() <= 2 {
+    if args.len() <= 2 {        
         return Ok(());
+    }    
+    
+    validate_stack_size_arg(&args[2])
+}
+
+
+//
+pub fn get_stack_size_arg(args : &[String]) -> i16 {
+    let default_len = convert_bytes_to_elements_amount(128);
+    if args.len() <= 2 {
+        return default_len;
     }
 
-    let stack_size_arg_valdation = validate_stack_size_arg(&args[2]);
+    let string_split: Vec<&str> = args[2].split('=').collect();
+    
+    if string_split.len() >= 2 {
+        match string_split[1].parse::<i16>() {
+            Ok(size) => {
+                return convert_bytes_to_elements_amount(size);                
+            }
+            Err(_) => {
+                return default_len;
+            }
+        }
+    } 
+    default_len
 
-
-    return stack_size_arg_valdation;    
 }

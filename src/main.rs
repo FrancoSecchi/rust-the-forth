@@ -1,16 +1,20 @@
 use std::env;
-use rust_the_forth::utils::{file_manager, validation};
+use rust_the_forth::utils::cli_manager;
+
+
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let vec_size: i16 = 128;
-
-
-    if let Err(e) = validation::validate_command_args(&args) {
+    if let Err(e) = cli_manager::validate_command_args(&args) {
         println!("Error: {}", e);
         return;
     }
+
+    let vec_size: i16 = cli_manager::get_stack_size_arg(&args);
+
+    println!("El stack es: {}", vec_size)
 
     /* let path = &args[1];
     open_file(path); */
