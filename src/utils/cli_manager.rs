@@ -93,9 +93,9 @@ pub fn validate_command_args(args: &[String]) -> Result<(), String> {
 /// # Ejemplo
 /// ```
 /// let args: Vec<String> = env::args().collect();
-/// let vec_len = get_stack_size_arg(&args);
+/// let vec_len = get_size_of_stack(&args);
 /// ```
-pub fn get_stack_size_arg(args : &[String]) -> i16 {
+pub fn get_size_of_stack(args : &[String]) -> i16 {
     let default_len = convert_bytes_to_elements_amount(128);
     if args.len() <= 2 {
         return default_len;
@@ -115,4 +115,56 @@ pub fn get_stack_size_arg(args : &[String]) -> i16 {
     } 
     default_len
 
+}
+
+/// Tests unitarios
+#[cfg(test)] 
+mod tests {
+    use super::*; 
+
+    #[test]
+    fn test_convert_bytes_to_elements() {
+        assert_eq!(convert_bytes_to_elements_amount(10), 5);
+        assert_eq!(convert_bytes_to_elements_amount(0), 0);
+    }
+
+    #[test]
+    fn test_validate_stack_size_arg() {
+        
+        assert!(validate_stack_size_arg("stack-size=10").is_ok());
+        
+        
+        assert!(validate_stack_size_arg("stack-size=0").is_err());
+        assert!(validate_stack_size_arg("stack-size=abc").is_err());
+        assert!(validate_stack_size_arg("formato-incorrecto").is_err());
+    }
+
+    #[test]
+    fn test_get_size_of_stack() {
+        let args = vec![
+            "program_name".to_string(),
+            "file.fth".to_string(),
+            "stack-size=20".to_string()
+        ];
+        
+        assert_eq!(get_size_of_stack(&args), 10); 
+        
+        
+        let args_min = vec!["program_name".to_string()];
+        assert_eq!(get_size_of_stack(&args_min), 64);
+    }
+
+    #[test]
+    fn test_validate_command_args() {
+        let valid_args = vec![
+            "program".to_string(),
+            "script.fth".to_string(),
+            "stack-size=128".to_string()
+        ];
+        
+        let invalid_file_args = vec!["program".to_string(), "nofile".to_string()];
+        
+        assert!(validate_command_args(&valid_args).is_ok());
+        assert!(validate_command_args(&invalid_file_args).is_err());
+    }
 }
