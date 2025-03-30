@@ -10,7 +10,8 @@ const I16_SIZE: i16 = 2;
 /// Cantidad de elementos i16 que caben en ese tamaño
 ///
 /// # Ejemplo
-/// ```
+/// ``` text
+/// use rust_the_forth::utils::convert_bytes_to_elements_amount;
 /// let elementos = convert_bytes_to_elements_amount(10); // Retorna 5
 /// ```
 fn convert_bytes_to_elements_amount(size: i16) -> i16 {
@@ -26,7 +27,8 @@ fn convert_bytes_to_elements_amount(size: i16) -> i16 {
 /// `Result<(), String>` con el resultado de la validación
 ///
 /// # Ejemplo
-/// ```
+/// ``` text
+/// use rust_the_forth::utils::validate_stack_size_arg;
 /// let validacion = validate_stack_size_arg(&String::from("stack-size=10"));
 /// ```
 fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
@@ -61,7 +63,9 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
 /// `Result<(), String>` con el resultado de la validación
 ///
 /// # Ejemplo
-/// ```
+/// ``` text
+/// use std::env; 
+/// use rust_the_forth::utils::validate_command_args;
 /// let args: Vec<String> = env::args().collect();
 /// let validacion = validate_command_args(&args);
 /// ```
@@ -91,7 +95,9 @@ pub fn validate_command_args(args: &[String]) -> Result<(), String> {
 /// `i16` el valor del stack-size
 ///
 /// # Ejemplo
-/// ```
+/// ``` text
+/// use std::env; 
+/// use rust_the_forth::utils::get_size_of_stack;
 /// let args: Vec<String> = env::args().collect();
 /// let vec_len = get_size_of_stack(&args);
 /// ```
@@ -120,7 +126,6 @@ pub fn get_size_of_stack(args: &[String]) -> i16 {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn test_convert_bytes_to_elements() {
         assert_eq!(convert_bytes_to_elements_amount(10), 5);
