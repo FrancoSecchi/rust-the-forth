@@ -1,9 +1,6 @@
 use std::env;
 use rust_the_forth::utils::cli_manager;
 
-
-
-
 fn main() {
     let args: Vec<String> = env::args().collect();
 

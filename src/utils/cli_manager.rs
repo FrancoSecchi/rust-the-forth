@@ -82,7 +82,19 @@ pub fn validate_command_args(args: &[String]) -> Result<(), String> {
 }
 
 
-//
+/// Devuelve la cantidad de elementos que permite el valor del argumento del stack-size
+///
+/// # Argumentos
+/// * `args` - Vector con los argumentos del programa
+///
+/// # Retorno
+/// `i16` el valor del stack-size
+///
+/// # Ejemplo
+/// ```
+/// let args: Vec<String> = env::args().collect();
+/// let vec_len = get_stack_size_arg(&args);
+/// ```
 pub fn get_stack_size_arg(args : &[String]) -> i16 {
     let default_len = convert_bytes_to_elements_amount(128);
     if args.len() <= 2 {
