@@ -3,9 +3,14 @@ use std::collections::HashMap;
 pub mod arithmetic;
 pub mod boolean;
 pub mod stack_manipulation;
+pub mod output;
 
 pub trait Operation {
     fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError>;
+}
+
+pub trait OperationOutput {
+    fn apply(&self, stack: &mut Vec<i16>, string_output: &mut String) -> Result<(), OperationError>;
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -25,6 +30,7 @@ pub enum OperationType {
     Over,
     Rot,
     Swap,
+    Dot
 }
 
 impl OperationType {
@@ -48,6 +54,7 @@ impl OperationType {
             "rot" => Some(OperationType::Rot),
             "swap" => Some(OperationType::Swap),
             "dup" => Some(OperationType::Dup),
+            "." => Some(OperationType::Dot),
             _ => None,
         }
     }
@@ -57,5 +64,11 @@ pub fn get_all_operations() -> HashMap<OperationType, Box<dyn Operation>> {
     let mut ops = HashMap::new();
     ops.extend(arithmetic::get_operations());
     ops.extend(boolean::get_operations());
+    ops
+}
+
+pub fn get_output_operations() -> HashMap<OperationType, Box<dyn OperationOutput>> {
+    let mut ops = HashMap::new();
+    ops.extend(output::get_operations());    
     ops
 }
