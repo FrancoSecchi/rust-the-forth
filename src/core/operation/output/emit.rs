@@ -16,7 +16,7 @@ impl OperationOutput for Emit {
             Ok(())
         } else {
             Err(OperationError::InvalidCharacter)
-        } 
+        }
     }
 }
 

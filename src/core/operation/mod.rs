@@ -70,7 +70,7 @@ impl OperationType {
         if token.starts_with(".\"") && token.chars().nth(2) == Some(' ') {
             return Some(OperationType::PrintText);
         }
-        let token_lower = token.to_lowercase(); 
+        let token_lower = token.to_lowercase();
         match token_lower.as_str() {
             //Arithmetic
             "+" => Some(OperationType::Add),

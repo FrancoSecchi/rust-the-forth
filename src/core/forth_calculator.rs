@@ -7,19 +7,18 @@ use std::collections::HashMap;
 use super::operation::OperationOutput;
 use super::operation::OperationType;
 
-
 /// A stack-based calculator implementing a subset of the Forth language.
-/// This calculator supports arithmetic operations, boolean operations, 
+/// This calculator supports arithmetic operations, boolean operations,
 /// stack manipulation, and output operations.
 pub struct ForthCalculator {
-      /// Maximum allowed stack size.
-      max_stack_size: i16,
-      /// Stack that stores numeric values for operations.
-      stack: Vec<i16>,
-      /// Mapping of standard operations (e.g., arithmetic, boolean) to their implementations.
-      operations: HashMap<OperationType, Box<dyn Operation>>,
-      /// Mapping of output-related operations (e.g., printing, emitting characters).
-      output_operations: HashMap<OperationType, Box<dyn OperationOutput>>,
+    /// Maximum allowed stack size.
+    max_stack_size: i16,
+    /// Stack that stores numeric values for operations.
+    stack: Vec<i16>,
+    /// Mapping of standard operations (e.g., arithmetic, boolean) to their implementations.
+    operations: HashMap<OperationType, Box<dyn Operation>>,
+    /// Mapping of output-related operations (e.g., printing, emitting characters).
+    output_operations: HashMap<OperationType, Box<dyn OperationOutput>>,
 }
 
 impl ForthCalculator {
@@ -59,7 +58,7 @@ impl ForthCalculator {
     /// If an error occurs, it is logged and execution stops.
     pub fn run(&mut self, content: String) {
         let mut output = String::new();
-        let input_tokens = file_manager::tokenize(&content);        
+        let input_tokens = file_manager::tokenize(&content);
         for token in input_tokens {
             let result = match token.parse::<i16>() {
                 Ok(number) => self.push_number(number),
@@ -125,7 +124,7 @@ impl ForthCalculator {
         &mut self,
         token: &str,
         output: &mut String,
-    ) -> Result<(), OperationError> {        
+    ) -> Result<(), OperationError> {
         let operation_type =
             OperationType::from_token(token).ok_or(OperationError::WordNotFound)?;
         if let Some(operation) = self.operations.get(&operation_type) {
