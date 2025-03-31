@@ -75,6 +75,19 @@ impl Operation for Or {
         Ok(())
     }
 }
+pub struct Not;
+
+impl Operation for Not {
+    fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
+        if stack.is_empty() {
+            return Err(OperationError::StackUnderflow);
+        }
+        let item = stack.pop().ok_or(OperationError::StackUnderflow)?;        
+        let result: i16 = if item != 0 {0} else {-1};        
+        stack.push(result);        
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {
