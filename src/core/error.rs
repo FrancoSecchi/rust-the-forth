@@ -9,7 +9,7 @@ pub enum OperationError {
     FailWritingFile,
     StringNull,
     InvalidCharacter,
-    WordNotFound
+    WordNotFound,
 }
 
 impl fmt::Display for OperationError {
@@ -24,10 +24,10 @@ impl fmt::Display for OperationError {
             }
             OperationError::StringNull => {
                 writeln!(f, "The output string is Null")
-            },
+            }
             OperationError::InvalidCharacter => {
                 writeln!(f, "The current character to emit is not valid")
-            },
+            }
             OperationError::WordNotFound => {
                 writeln!(f, "?")
             }
