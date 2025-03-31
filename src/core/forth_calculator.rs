@@ -31,21 +31,23 @@ impl ForthCalculator {
     pub fn run(&mut self, content: String) {
         let mut output = String::new();
         let input_tokens = file_manager::tokenize(&content);
-        for token in input_tokens.iter() {
-            if let Ok(number) = token.parse::<i16>() {
-                if let Err(e) = self.push_number(number) {
-                    self.add_string_output_error(&mut output, e);
-                    break;
-                }
-            } else if let Err(e) = self.execute_operation(token, &mut output) {
+        
+        for token in input_tokens {
+            let result = match token.parse::<i16>() {
+                Ok(number) => self.push_number(number),
+                Err(_) => self.execute_operation(&token, &mut output),
+            };
+    
+            if let Err(e) = result {
                 self.add_string_output_error(&mut output, e);
                 break;
             }
         }
+        
         if let Err(_e) = file_manager::save_stack(&self.stack) {
             self.add_string_output_error(&mut output, OperationError::FailWritingFile);
-        };
-
+        }
+    
         if !output.is_empty() {
             println!("{output}");
         }
