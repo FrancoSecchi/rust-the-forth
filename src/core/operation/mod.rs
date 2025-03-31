@@ -10,7 +10,7 @@ pub trait Operation {
 }
 
 pub trait OperationOutput {
-    fn apply(&self, stack: &mut Vec<i16>, string_output: &mut String)
+    fn apply(&self, stack: &mut Vec<i16>, string_output: &mut String, tokens: &Vec<String>)
         -> Result<(), OperationError>;
 }
 
@@ -61,7 +61,7 @@ impl OperationType {
             "." => Some(OperationType::Dot),
             "cr" => Some(OperationType::Cr),
             "emit" => Some(OperationType::Emit),
-            //"." => Some(OperationType::PrintText),
+            ".\" " => Some(OperationType::PrintText),
             _ => None,
         }
     }
