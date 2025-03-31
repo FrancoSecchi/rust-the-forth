@@ -124,4 +124,40 @@ mod tests {
             ));
         }
     }
+    mod less_tests {
+        use super::*;
+        #[test]
+        fn test_less_numbers() {
+            let mut stack: Vec<i16> = vec![1, 2];
+            Less.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![-1]);
+        }
+        #[test]
+        fn test_not_less_number() {
+            let mut stack: Vec<i16> = vec![3, 2];
+            Less.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![0]);
+        }
+        #[test]
+        fn test_less_numbers_many_elements() {
+            let mut stack: Vec<i16> = vec![2, 4, 3];
+            Less.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 0]);
+        }
+
+        #[test]
+        fn test_underflow_less() {
+            let mut stack: Vec<i16> = vec![];
+            assert!(matches!(
+                Less.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+            
+            let mut second_stack: Vec<i16> = vec![1];
+            assert!(matches!(
+                Less.apply(&mut second_stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
 }
