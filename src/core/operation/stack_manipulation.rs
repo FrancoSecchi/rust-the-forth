@@ -135,4 +135,30 @@ mod tests {
             ));
         }
     }
+
+
+    mod over_tests {
+        use super::*;
+        #[test]
+        fn test_over_last_number() {
+            let mut stack: Vec<i16> = vec![2, 3];
+            Over.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 3, 2]);
+        }
+
+        #[test]
+        fn test_underflow_over() {
+            let mut stack: Vec<i16> = vec![1];
+            assert!(matches!(
+                Over.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+
+            let mut second_stack: Vec<i16> = vec![];
+            assert!(matches!(
+                Over.apply(&mut second_stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
 }
