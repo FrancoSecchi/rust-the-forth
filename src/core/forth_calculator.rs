@@ -30,27 +30,29 @@ impl ForthCalculator {
 
     pub fn run(&mut self, content: String) {
         let mut output = String::new();
-        let input_tokens = file_manager::tokenize(&content); 
-        println!("{:#?}", input_tokens);
-        for token in &input_tokens {
+        let input_tokens = file_manager::tokenize(&content);        
+        for token in input_tokens.iter() {
             if let Ok(number) = token.parse::<i16>() {
                 if let Err(e) = self.push_number(number) {
-                    println!("{e}");
+                    self.add_string_output_error(&mut output, e);
                     break;
                 }
-            } else {
-                if let Err(e) = self.execute_operation(&token, &mut output, &input_tokens) {
-                    println!("{}", e);
-                }
+            } else if  let Err(e) = self.execute_operation(token, &mut output){
+                self.add_string_output_error(&mut output, e);
+                break;           
             }
         }
-        if let Err(e) = file_manager::save_stack(&self.stack) {
-            println!("{e}");
+        if let Err(_e) = file_manager::save_stack(&self.stack) {
+            self.add_string_output_error(&mut output, OperationError::FailWritingFile);
         };
 
         if !output.is_empty() {
             println!("{output}");
         }
+    }
+
+    fn add_string_output_error(&mut self, output: &mut String, error: OperationError) {        
+        output.push_str(&format!("{}", error));
     }
 
     fn push_number(&mut self, number: i16) -> Result<(), OperationError> {
@@ -66,18 +68,25 @@ impl ForthCalculator {
         &mut self,
         token: &str,
         output: &mut String,
-        tokens: &Vec<String>
     ) -> Result<(), OperationError> {
         if token.len() == 1 {
             if let Some(operation_type) = OperationType::from_token(token) {
                 if let Some(operation) = self.operations.get(&operation_type) {
                     operation.apply(&mut self.stack)?;
                 } else if let Some(operation) = self.output_operations.get(&operation_type) {
-                    operation.apply(&mut self.stack, output, tokens)?;
+                    operation.apply(&mut self.stack, output, token)?;
                 }
             } else {
-               return Err(OperationError::WordNotFound);
+                return Err(OperationError::WordNotFound);
             }
+        } else  if let Some(operation_type) = OperationType::from_token(token) {        
+            if let Some(operation) = self.output_operations.get(&operation_type) {
+                operation.apply(&mut self.stack, output, token)?;                
+            } else {
+                return Err(OperationError::WordNotFound);
+            }
+        } else {
+            return Err(OperationError::WordNotFound);
         }
         Ok(())
     }
