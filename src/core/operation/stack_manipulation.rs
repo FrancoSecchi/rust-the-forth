@@ -51,6 +51,23 @@ impl Operation for Swap {
 }
 
 
+#[derive(Debug)]
+pub struct Over;
+
+impl Operation for Over {
+    fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
+        if stack.is_empty() {
+            return Err(OperationError::StackUnderflow);
+        }
+        let last_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let penultimate_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        
+        stack.push(penultimate_item);
+        stack.push(last_item);
+        stack.push(penultimate_item);
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {
