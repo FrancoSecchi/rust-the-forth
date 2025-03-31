@@ -9,7 +9,6 @@ use super::operation::OperationType;
 pub struct ForthCalculator {
     max_stack_size: i16,
     stack: Vec<i16>,
-    output: String,
     operations: HashMap<OperationType, Box<dyn Operation>>,
 }
 
@@ -17,8 +16,7 @@ impl ForthCalculator {
     pub fn new(stack_size: i16) -> Self {
         ForthCalculator {
             max_stack_size: stack_size,
-            stack: Vec::new(),
-            output: String::new(),            
+            stack: Vec::new(),             
             operations: get_all_operations(),
         }
     }
@@ -30,36 +28,38 @@ impl ForthCalculator {
     pub fn run(&mut self, content: String) {
         for token in content.split_whitespace() {
             if let Ok(number) = token.parse::<i16>() {
-                if let Err(e) = self.process_number(number) {
-                    println!("{}", OperationError::StackOverflow);
+                if let Err(e) = self.push_number(number) {
+                    println!("{e}");
                     break;
                 }
             } else {
-                if token.len() == 1 {
-                    if let Some(operation_type) = OperationType::from_token(token) {
-                        if let Some(op) = self.operations.get(&operation_type) {
-                            match op.apply(&mut self.stack) {
-                                Ok(_) => {}
-                                Err(error) => {
-                                    println!("{error}");
-                                }
-                            }
-                        }
-                    }                    
+                if let Err(e) = self.execute_operation(token) {
+                    println!("{}", e);
                 }
             }        
         }
         if let Err(e) = file_manager::save_stack(&self.stack) {
-            println!("{}", OperationError::FailWritingFile)
+            println!("{e}");
         };        
     }
 
-    fn process_number(&mut self, number: i16) -> Result<(), OperationError> {
+    fn push_number(&mut self, number: i16) -> Result<(), OperationError> {
         if self.stack.len() == self.max_stack_size as usize {
             return Err(OperationError::StackOverflow);        
         }   
 
         self.stack.push(number);
+        Ok(())
+    }
+
+    fn execute_operation(&mut self, token: &str) -> Result<(), OperationError> {
+        if token.len() == 1 {
+            if let Some(operation_type) = OperationType::from_token(token) {
+                if let Some(operation) = self.operations.get(&operation_type) {
+                    operation.apply(&mut self.stack)?;                    
+                }
+            }
+        }
         Ok(())
     }
 }
