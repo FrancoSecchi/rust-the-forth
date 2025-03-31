@@ -1,8 +1,8 @@
 use rust_the_forth::core::forth_calculator::ForthCalculator;
 
 fn eval_forth_calculator(code: &str) -> Vec<i16> {
-    let mut calculator = ForthCalculator::new(code.to_string(), 128);
-    calculator.run();
+    let mut calculator = ForthCalculator::new(2);
+    calculator.run(code.to_string());
     calculator.get_stack().clone()
 }
 

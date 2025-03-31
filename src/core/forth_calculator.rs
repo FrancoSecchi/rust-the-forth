@@ -7,18 +7,18 @@ use std::collections::HashMap;
 use super::operation::OperationType;
 
 pub struct ForthCalculator {
+    max_stack_size: i16,
     stack: Vec<i16>,
     output: String,
-    content: String,
     operations: HashMap<OperationType, Box<dyn Operation>>,
 }
 
 impl ForthCalculator {
-    pub fn new(content: String, stack_size: i16) -> Self {
+    pub fn new(stack_size: i16) -> Self {
         ForthCalculator {
-            stack: Vec::with_capacity(stack_size.max(0) as usize),
-            output: String::new(),
-            content,
+            max_stack_size: stack_size,
+            stack: Vec::new(),
+            output: String::new(),            
             operations: get_all_operations(),
         }
     }
@@ -27,10 +27,14 @@ impl ForthCalculator {
         &self.stack
     }
 
-    pub fn run(&mut self) {
-        for token in self.content.split_whitespace() {
+    pub fn run(&mut self, content: String) {
+        for token in content.split_whitespace() {
             match token.parse::<i16>() {
-                Ok(number) => {
+                Ok(number) => {           
+                    if self.stack.len() == self.max_stack_size as usize {
+                        println!("{}", OperationError::StackOverflow);
+                        break;
+                    }      
                     self.stack.push(number);
                 }
                 Err(_) => {
@@ -53,4 +57,5 @@ impl ForthCalculator {
             println!("{}", OperationError::FailWritingFile)
         };        
     }
+
 }
