@@ -79,13 +79,22 @@ mod tests {
             let mut stack: Vec<i16> = vec![2, 3];
             Add.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![5]);
-        }
+        }        
         
         #[test]
         fn test_add_last_two_numbers() {
             let mut stack: Vec<i16> = vec![2, 3, 3];
             Add.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![2, 6]);
+        }
+
+        #[test]
+        fn test_add_numbers_multiple_times() {
+            let mut stack: Vec<i16> = vec![2, 3, 3];
+            Add.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 6]);
+            Add.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![8]);
         }
         
         #[test]
@@ -114,13 +123,60 @@ mod tests {
             Sub.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![2, 2]);
         }
+
+
+        #[test]
+        fn test_sub_numbers_multiple_times() {
+            let mut stack: Vec<i16> = vec![2, 4, 3];
+            Sub.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 1]);
+            Sub.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![1]);
+        }
         
 
         #[test]
         fn test_sub_stack_underflow() {
             let mut stack: Vec<i16> = vec![1];
             assert!(matches!(
-                Add.apply(&mut stack),
+                Sub.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
+        
+    mod mul_tests {
+        use super::*;
+        
+        #[test]
+        fn test_mul_two_numbers() {
+            let mut stack: Vec<i16> = vec![2, 3];
+            Mul.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![6]);
+        }
+
+        #[test]
+        fn test_mul_last_two_numbers() {
+            let mut stack: Vec<i16> = vec![2, 3, 1];
+            Mul.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 3]);
+        }
+
+        #[test]
+        fn test_mul_numbers_multiple_times() {
+            let mut stack: Vec<i16> = vec![2, 4, 3];
+            Mul.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 12]);
+            Mul.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![24]);
+        }
+        
+
+        #[test]
+        fn test_mul_stack_underflow() {
+            let mut stack: Vec<i16> = vec![1];
+            assert!(matches!(
+                Mul.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
             ));
         }
@@ -144,6 +200,15 @@ mod tests {
         }
 
         #[test]
+        fn test_div_numbers_multiple_times() {
+            let mut stack: Vec<i16> = vec![2, 6, 3];
+            Div.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 2]);
+            Div.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![1]);
+        }
+
+        #[test]
         fn test_truncate_to_zero_divide() {
             let mut stack: Vec<i16> = vec![2, 4];
             Div.apply(&mut stack).unwrap();
@@ -159,4 +224,6 @@ mod tests {
             ));
         }
     }
+
+    
 }
