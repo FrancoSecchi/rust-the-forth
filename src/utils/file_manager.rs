@@ -15,16 +15,15 @@ pub fn read_to_string<P: AsRef<Path>>(path: P) -> io::Result<String> {
     Ok(content)
 }
 
-
 pub fn write_to_file<P: AsRef<Path>, C: AsRef<str>>(path: P, content: C) -> io::Result<()> {
     let mut file = File::create(path)?;
     file.write_all(content.as_ref().as_bytes())?;
     Ok(())
 }
 
-
 pub fn save_stack(stack: &Vec<i16>) -> io::Result<()> {
-    let stack_str = stack.iter()
+    let stack_str = stack
+        .iter()
         .map(|n| n.to_string())
         .collect::<Vec<String>>()
         .join(" ");
