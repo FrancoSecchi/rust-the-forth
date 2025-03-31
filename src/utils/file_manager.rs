@@ -30,3 +30,41 @@ pub fn save_stack(stack: &Vec<i16>) -> io::Result<()> {
 
     write_to_file("stack.fth", stack_str)
 }
+
+pub fn tokenize(input: &str) -> Vec<String> {
+    let mut chars = input.chars().peekable();
+    let mut tokens = Vec::new();
+    let mut current = String::new();
+
+    while let Some(c) = chars.next() {
+        if c.is_whitespace() {
+            if !current.is_empty() {
+                tokens.push(current);
+                current = String::new();
+            }
+        } else if c == '.' && chars.peek() == Some(&'"') {            
+            current.push(c); 
+            if let Some(next) = chars.next() { 
+                current.push(next); 
+            }
+
+            if let Some(&next) = chars.peek() {
+                if next.is_whitespace() {
+                    current.push(' '); 
+                    chars.next();
+                }
+            }
+
+            tokens.push(current); 
+            current = String::new();
+        } else {
+            current.push(c);
+        }
+    }
+
+    if !current.is_empty() {
+        tokens.push(current);
+    }
+
+    tokens
+}

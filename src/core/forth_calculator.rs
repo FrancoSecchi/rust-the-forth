@@ -30,14 +30,16 @@ impl ForthCalculator {
 
     pub fn run(&mut self, content: String) {
         let mut output = String::new();
-        for token in content.split_whitespace() {
+        let input_tokens = file_manager::tokenize(&content); 
+        println!("{:#?}", input_tokens);
+        for token in &input_tokens {
             if let Ok(number) = token.parse::<i16>() {
                 if let Err(e) = self.push_number(number) {
                     println!("{e}");
                     break;
                 }
             } else {
-                if let Err(e) = self.execute_operation(token, &mut output) {
+                if let Err(e) = self.execute_operation(&token, &mut output, &input_tokens) {
                     println!("{}", e);
                 }
             }
@@ -64,13 +66,14 @@ impl ForthCalculator {
         &mut self,
         token: &str,
         output: &mut String,
+        tokens: &Vec<String>
     ) -> Result<(), OperationError> {
         if token.len() == 1 {
             if let Some(operation_type) = OperationType::from_token(token) {
                 if let Some(operation) = self.operations.get(&operation_type) {
                     operation.apply(&mut self.stack)?;
                 } else if let Some(operation) = self.output_operations.get(&operation_type) {
-                    operation.apply(&mut self.stack, output)?;
+                    operation.apply(&mut self.stack, output, tokens)?;
                 }
             } else {
                return Err(OperationError::WordNotFound);
