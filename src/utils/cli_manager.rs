@@ -64,7 +64,7 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
 ///
 /// # Ejemplo
 /// ``` text
-/// use std::env; 
+/// use std::env;
 /// use rust_the_forth::utils::validate_command_args;
 /// let args: Vec<String> = env::args().collect();
 /// let validacion = validate_command_args(&args);
@@ -96,7 +96,7 @@ pub fn validate_command_args(args: &[String]) -> Result<(), String> {
 ///
 /// # Ejemplo
 /// ``` text
-/// use std::env; 
+/// use std::env;
 /// use rust_the_forth::utils::get_size_of_stack;
 /// let args: Vec<String> = env::args().collect();
 /// let vec_len = get_size_of_stack(&args);
