@@ -47,12 +47,12 @@ pub struct Div;
 
 impl Operation for Div {
     fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
-        let a = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let b = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        if a == 0 {
+        let divisor = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let dividen: i16 = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        if divisor == 0 {
             return Err(OperationError::DivisionByZero)
         }
-        stack.push(b / a);
+        stack.push(dividen / divisor);
         Ok(())
     }
 }
@@ -225,5 +225,58 @@ mod tests {
         }
     }
 
+    mod mixed_operations {
+        use super::*;
+        
+        #[test]
+        fn test_add_and_multiply() {            
+            let mut stack = vec![2, 3, 5];
+            
+            Add.apply(&mut stack).unwrap();
+            Mul.apply(&mut stack).unwrap();
+            
+            assert_eq!(stack, vec![16]);
+        }
+        
+        #[test]
+        fn test_complex_sequence() {            
+            let mut stack = vec![10, 5, 3, 4, 2];
+            
+            Mul.apply(&mut stack).unwrap(); 
+            assert_eq!(stack, vec![10, 5, 3, 8]);
+
+            Sub.apply(&mut stack).unwrap();  
+            assert_eq!(stack, vec![10, 5, -5]);    
+            
+            Div.apply(&mut stack).unwrap(); 
+            assert_eq!(stack, vec![10, -1]);
+
+            Sub.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![11]); 
+        }
+
+        #[test]
+        fn test_complex_sequence_underflow() {            
+            let mut stack = vec![10, 5, 3, 4, 2];
+            
+            Mul.apply(&mut stack).unwrap(); 
+            assert_eq!(stack, vec![10, 5, 3, 8]);
+
+            Sub.apply(&mut stack).unwrap();  
+            assert_eq!(stack, vec![10, 5, -5]);    
+            
+            Div.apply(&mut stack).unwrap(); 
+            assert_eq!(stack, vec![10, -1]);
+
+            Sub.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![11]); 
+
+            assert!(matches!(
+                Div.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+
+    }
     
 }
