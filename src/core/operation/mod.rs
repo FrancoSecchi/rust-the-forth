@@ -70,7 +70,8 @@ impl OperationType {
         if token.starts_with(".\"") && token.chars().nth(2) == Some(' ') {
             return Some(OperationType::PrintText);
         }
-        match token.to_lowercase().as_str() {
+        let token_lower = token.to_lowercase(); 
+        match token_lower.as_str() {
             //Arithmetic
             "+" => Some(OperationType::Add),
             "-" => Some(OperationType::Sub),
@@ -108,13 +109,14 @@ impl OperationType {
 /// are boxed dynamic trait objects implementing `Operation`.
 ///
 /// # Examples
-/// ```
+/// ```text
 /// let operations = get_all_standar_operations();
 /// ```
 pub fn get_all_standar_operations() -> HashMap<OperationType, Box<dyn Operation>> {
     let mut ops = HashMap::new();
     ops.extend(arithmetic::get_operations());
     ops.extend(boolean::get_operations());
+    ops.extend(stack_manipulation::get_operations());
     ops
 }
 
@@ -128,7 +130,7 @@ pub fn get_all_standar_operations() -> HashMap<OperationType, Box<dyn Operation>
 /// are boxed dynamic trait objects implementing `OperationOutput`.
 ///
 /// # Examples
-/// ```
+/// ```text
 /// let output_operations = get_output_operations();
 /// ```
 pub fn get_output_operations() -> HashMap<OperationType, Box<dyn OperationOutput>> {
