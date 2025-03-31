@@ -1,4 +1,3 @@
-
 use crate::core::error::OperationError;
 use crate::core::operation::Operation;
 use std::collections::HashMap;
@@ -12,8 +11,8 @@ impl Operation for Eq {
         }
         let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let result: i16 = if item == second_item {-1} else {0};        
-        stack.push(result);        
+        let result: i16 = if item == second_item { -1 } else { 0 };
+        stack.push(result);
         Ok(())
     }
 }
@@ -27,8 +26,8 @@ impl Operation for Greater {
         }
         let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let result: i16 = if second_item > item {-1} else {0};        
-        stack.push(result);        
+        let result: i16 = if second_item > item { -1 } else { 0 };
+        stack.push(result);
         Ok(())
     }
 }
@@ -42,8 +41,8 @@ impl Operation for Less {
         }
         let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let result: i16 = if second_item < item {-1} else {0};        
-        stack.push(result);        
+        let result: i16 = if second_item < item { -1 } else { 0 };
+        stack.push(result);
         Ok(())
     }
 }
@@ -55,9 +54,9 @@ impl Operation for And {
             return Err(OperationError::StackUnderflow);
         }
         let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;        
-        let result: i16 = if second_item != 0 && item != 0 {-1} else {0};        
-        stack.push(result);        
+        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let result: i16 = if second_item != 0 && item != 0 { -1 } else { 0 };
+        stack.push(result);
         Ok(())
     }
 }
@@ -69,9 +68,9 @@ impl Operation for Or {
             return Err(OperationError::StackUnderflow);
         }
         let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;        
-        let result: i16 = if second_item != 0 || item != 0 {-1} else {0};        
-        stack.push(result);        
+        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let result: i16 = if second_item != 0 || item != 0 { -1 } else { 0 };
+        stack.push(result);
         Ok(())
     }
 }
@@ -82,9 +81,9 @@ impl Operation for Not {
         if stack.is_empty() {
             return Err(OperationError::StackUnderflow);
         }
-        let item = stack.pop().ok_or(OperationError::StackUnderflow)?;        
-        let result: i16 = if item != 0 {0} else {-1};        
-        stack.push(result);        
+        let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let result: i16 = if item != 0 { 0 } else { -1 };
+        stack.push(result);
         Ok(())
     }
 }
@@ -120,7 +119,7 @@ mod tests {
                 Eq.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
             ));
-            
+
             let mut second_stack: Vec<i16> = vec![1];
             assert!(matches!(
                 Eq.apply(&mut second_stack),
@@ -157,7 +156,7 @@ mod tests {
                 Greater.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
             ));
-            
+
             let mut second_stack: Vec<i16> = vec![1];
             assert!(matches!(
                 Greater.apply(&mut second_stack),
@@ -193,7 +192,7 @@ mod tests {
                 Less.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
             ));
-            
+
             let mut second_stack: Vec<i16> = vec![1];
             assert!(matches!(
                 Less.apply(&mut second_stack),
@@ -201,7 +200,7 @@ mod tests {
             ));
         }
     }
-    
+
     mod and_tests {
         use super::*;
         #[test]
@@ -215,7 +214,7 @@ mod tests {
             let mut stack: Vec<i16> = vec![-1, 0];
             And.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![0]);
-            let mut stack_two: Vec<i16> = vec![0, 0];        
+            let mut stack_two: Vec<i16> = vec![0, 0];
             And.apply(&mut stack_two).unwrap();
             assert_eq!(stack_two, vec![0]);
         }
@@ -233,7 +232,7 @@ mod tests {
                 And.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
             ));
-            
+
             let mut second_stack: Vec<i16> = vec![1];
             assert!(matches!(
                 And.apply(&mut second_stack),
@@ -254,7 +253,7 @@ mod tests {
             let mut stack: Vec<i16> = vec![-1, 0];
             Or.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![-1]);
-            let mut stack_two: Vec<i16> = vec![0, 0];        
+            let mut stack_two: Vec<i16> = vec![0, 0];
             Or.apply(&mut stack_two).unwrap();
             assert_eq!(stack_two, vec![0]);
         }
@@ -272,7 +271,7 @@ mod tests {
                 Or.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
             ));
-            
+
             let mut second_stack: Vec<i16> = vec![1];
             assert!(matches!(
                 Or.apply(&mut second_stack),
@@ -293,7 +292,7 @@ mod tests {
             let mut stack: Vec<i16> = vec![10];
             Not.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![0]);
-            Not.apply(&mut stack).unwrap();        
+            Not.apply(&mut stack).unwrap();
             assert_eq!(stack, vec![-1]);
         }
         #[test]
@@ -312,5 +311,4 @@ mod tests {
             ));
         }
     }
-
 }

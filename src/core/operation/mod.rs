@@ -1,7 +1,7 @@
 pub mod arithmetic;
 pub mod boolean;
-pub mod stack_manipulation;
 pub mod output;
+pub mod stack_manipulation;
 use crate::core::error::OperationError;
 
 pub trait Operation {
