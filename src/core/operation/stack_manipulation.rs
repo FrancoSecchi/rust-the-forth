@@ -53,4 +53,23 @@ mod tests {
             ));
         }
     }
+
+    mod drop_tests {
+        use super::*;
+        #[test]
+        fn test_drop_last_number() {
+            let mut stack: Vec<i16> = vec![2, 3];
+            Drop.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2]);
+        }
+
+        #[test]
+        fn test_underflow_drop() {
+            let mut stack: Vec<i16> = vec![];
+            assert!(matches!(
+                Drop.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
 }
