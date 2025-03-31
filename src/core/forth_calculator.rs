@@ -29,33 +29,37 @@ impl ForthCalculator {
 
     pub fn run(&mut self, content: String) {
         for token in content.split_whitespace() {
-            match token.parse::<i16>() {
-                Ok(number) => {           
-                    if self.stack.len() == self.max_stack_size as usize {
-                        println!("{}", OperationError::StackOverflow);
-                        break;
-                    }      
-                    self.stack.push(number);
+            if let Ok(number) = token.parse::<i16>() {
+                if let Err(e) = self.process_number(number) {
+                    println!("{}", OperationError::StackOverflow);
+                    break;
                 }
-                Err(_) => {
-                    if token.len() == 1 {
-                        if let Some(operation_type) = OperationType::from_token(token) {
-                            if let Some(op) = self.operations.get(&operation_type) {
-                                match op.apply(&mut self.stack) {
-                                    Ok(_) => {}
-                                    Err(error) => {
-                                        println!("{error}");
-                                    }
+            } else {
+                if token.len() == 1 {
+                    if let Some(operation_type) = OperationType::from_token(token) {
+                        if let Some(op) = self.operations.get(&operation_type) {
+                            match op.apply(&mut self.stack) {
+                                Ok(_) => {}
+                                Err(error) => {
+                                    println!("{error}");
                                 }
                             }
-                        }                    
-                    }
+                        }
+                    }                    
                 }
-            }
+            }        
         }
         if let Err(e) = file_manager::save_stack(&self.stack) {
             println!("{}", OperationError::FailWritingFile)
         };        
     }
 
+    fn process_number(&mut self, number: i16) -> Result<(), OperationError> {
+        if self.stack.len() == self.max_stack_size as usize {
+            return Err(OperationError::StackOverflow);        
+        }   
+
+        self.stack.push(number);
+        Ok(())
+    }
 }
