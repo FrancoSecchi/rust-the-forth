@@ -18,6 +18,20 @@ impl Operation for Eq {
     }
 }
 
+pub struct Greater;
+
+impl Operation for Greater {
+    fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
+        if stack.is_empty() {
+            return Err(OperationError::StackUnderflow);
+        }
+        let item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let result: i16 = if second_item > item {-1} else {0};        
+        stack.push(result);        
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {
