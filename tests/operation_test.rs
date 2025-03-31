@@ -1,10 +1,10 @@
 use rust_the_forth::core::error::OperationError;
-use rust_the_forth::core::operation::get_all_operations;
+use rust_the_forth::core::operation::get_all_standar_operations;
 use rust_the_forth::core::operation::OperationType;
 
 #[test]
 fn test_complex_sequence() {
-    let ops = get_all_operations();
+    let ops = get_all_standar_operations();
     let mut stack = vec![10, 5, 3, 4, 2];
 
     ops[&OperationType::Mul].apply(&mut stack).unwrap();
@@ -22,7 +22,7 @@ fn test_complex_sequence() {
 
 #[test]
 fn test_error_handling() {
-    let ops = get_all_operations();
+    let ops = get_all_standar_operations();
     let mut stack = vec![1, 0];
 
     assert!(matches!(
@@ -35,7 +35,7 @@ fn test_error_handling() {
 
 #[test]
 fn test_complex_sequence_underflow() {
-    let ops = get_all_operations();
+    let ops = get_all_standar_operations();
 
     let mut stack = vec![10, 5, 3, 4, 2];
 
