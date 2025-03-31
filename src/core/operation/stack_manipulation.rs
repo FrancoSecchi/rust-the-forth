@@ -32,7 +32,7 @@ mod tests {
 
         #[test]
         fn test_underflow_dup() {
-            let mut stack: Vec<i16> = vec![];            
+            let mut stack: Vec<i16> = vec![];
             assert!(matches!(
                 Dup.apply(&mut stack),
                 Err(OperationError::StackUnderflow)
@@ -40,4 +40,3 @@ mod tests {
         }
     }
 }
-
