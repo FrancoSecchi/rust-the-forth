@@ -18,3 +18,26 @@ impl Operation for Dup {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    mod dup_tests {
+        use super::*;
+        #[test]
+        fn test_dup_last_number() {
+            let mut stack: Vec<i16> = vec![2, 3];
+            Dup.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 3, 3]);
+        }
+
+        #[test]
+        fn test_underflow_dup() {
+            let mut stack: Vec<i16> = vec![];            
+            assert!(matches!(
+                Dup.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
+}
+
