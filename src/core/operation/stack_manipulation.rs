@@ -31,8 +31,6 @@ impl Operation for Drop {
     }
 }
 
-//DUP, DROP, SWAP, OVER, ROT
-
 
 #[derive(Debug)]
 pub struct Swap;
