@@ -124,7 +124,7 @@ pub fn get_size_of_stack(args: &[String]) -> i16 {
 
 /// Tests unitarios
 #[cfg(test)]
-mod tests {
+mod cli_manager_tests {
     use super::*;
     #[test]
     fn test_convert_bytes_to_elements() {
