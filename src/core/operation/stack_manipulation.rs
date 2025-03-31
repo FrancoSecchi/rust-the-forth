@@ -31,7 +31,6 @@ impl Operation for Drop {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Swap;
 
@@ -48,7 +47,6 @@ impl Operation for Swap {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Over;
 
@@ -59,7 +57,7 @@ impl Operation for Over {
         }
         let last_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let penultimate_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        
+
         stack.push(penultimate_item);
         stack.push(last_item);
         stack.push(penultimate_item);
@@ -79,7 +77,7 @@ impl Operation for Rot {
         let third_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let first_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        
+
         stack.push(second_item);
         stack.push(third_item);
         stack.push(first_item);
@@ -128,7 +126,6 @@ mod tests {
         }
     }
 
-
     mod swap_tests {
         use super::*;
         #[test]
@@ -153,7 +150,6 @@ mod tests {
             ));
         }
     }
-
 
     mod over_tests {
         use super::*;
