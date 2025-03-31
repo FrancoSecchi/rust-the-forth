@@ -78,13 +78,13 @@ impl Operation for Rot {
             return Err(OperationError::StackUnderflow);
         }
 
-        let first_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
-        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let third_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let first_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
         
+        stack.push(second_item);
         stack.push(third_item);
         stack.push(first_item);
-        stack.push(second_item);
         Ok(())
     }
 }
@@ -177,6 +177,36 @@ mod tests {
             let mut second_stack: Vec<i16> = vec![];
             assert!(matches!(
                 Over.apply(&mut second_stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
+
+    mod rot_tests {
+        use super::*;
+        #[test]
+        fn test_rot_elements() {
+            let mut stack: Vec<i16> = vec![1, 2, 3];
+            Rot.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![2, 3, 1]);
+        }
+
+        #[test]
+        fn test_underflow_rot() {
+            let mut stack: Vec<i16> = vec![1];
+            assert!(matches!(
+                Rot.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+
+            let mut second_stack: Vec<i16> = vec![];
+            assert!(matches!(
+                Rot.apply(&mut second_stack),
+                Err(OperationError::StackUnderflow)
+            ));
+            let mut second_stack: Vec<i16> = vec![1, 2];
+            assert!(matches!(
+                Rot.apply(&mut second_stack),
                 Err(OperationError::StackUnderflow)
             ));
         }
