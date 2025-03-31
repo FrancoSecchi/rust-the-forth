@@ -92,4 +92,30 @@ mod tests {
             ));
         }
     }
+
+
+    mod swap_tests {
+        use super::*;
+        #[test]
+        fn test_swap_last_number() {
+            let mut stack: Vec<i16> = vec![2, 3];
+            Swap.apply(&mut stack).unwrap();
+            assert_eq!(stack, vec![3, 2]);
+        }
+
+        #[test]
+        fn test_underflow_swap() {
+            let mut stack: Vec<i16> = vec![1];
+            assert!(matches!(
+                Swap.apply(&mut stack),
+                Err(OperationError::StackUnderflow)
+            ));
+
+            let mut second_stack: Vec<i16> = vec![];
+            assert!(matches!(
+                Swap.apply(&mut second_stack),
+                Err(OperationError::StackUnderflow)
+            ));
+        }
+    }
 }
