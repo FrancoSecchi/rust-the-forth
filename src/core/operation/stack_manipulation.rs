@@ -18,6 +18,20 @@ impl Operation for Dup {
     }
 }
 
+#[derive(Debug)]
+pub struct Drop;
+
+impl Operation for Drop {
+    fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
+        if stack.is_empty() {
+            return Err(OperationError::StackUnderflow);
+        }
+        stack.pop().ok_or(OperationError::StackUnderflow)?;
+        Ok(())
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
