@@ -1,5 +1,5 @@
 use rust_the_forth::core::error::OperationError;
-use rust_the_forth::core::operation::get_operations;
+use rust_the_forth::core::operation::arithmetic::get_operations;
 
 #[test]
 fn test_complex_sequence() {

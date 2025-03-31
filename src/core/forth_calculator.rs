@@ -1,4 +1,5 @@
-use crate::core::operation::{get_operations, Operation};
+use crate::core::operation::Operation;
+use crate::core::operation::arithmetic::get_operations;
 use std::collections::HashMap;
 
 pub struct ForthCalculator {
