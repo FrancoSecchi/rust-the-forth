@@ -9,15 +9,14 @@ impl OperationOutput for Dot {
         output.push_str(&format!("{} ", num));
         Ok(())
     }
-} 
-
+}
 
 #[test]
 fn test_print_number() {
     let mut stack: Vec<i16> = vec![2, 3];
     let mut output = String::new();
     Dot.apply(&mut stack, &mut output).unwrap();
-    assert_eq!(stack, vec![2]); 
+    assert_eq!(stack, vec![2]);
     assert_eq!(output, "3 ");
 }
 
@@ -29,7 +28,7 @@ fn test_print_many_numbers() {
     Dot.apply(&mut stack, &mut output).unwrap();
     Dot.apply(&mut stack, &mut output).unwrap();
     Dot.apply(&mut stack, &mut output).unwrap();
-    assert_eq!(stack, vec![2]); 
+    assert_eq!(stack, vec![2]);
     assert_eq!(output, "6 5 4 3 ");
 }
 
@@ -40,5 +39,5 @@ fn test_print_number_underflow() {
     assert!(matches!(
         Dot.apply(&mut stack, &mut output),
         Err(OperationError::StackUnderflow)
-    ));    
+    ));
 }

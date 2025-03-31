@@ -7,6 +7,7 @@ pub enum OperationError {
     DivisionByZero,
     InvalidWord,
     FailWritingFile,
+    StringNull,
 }
 
 impl fmt::Display for OperationError {
@@ -18,6 +19,9 @@ impl fmt::Display for OperationError {
             OperationError::InvalidWord => writeln!(f, "invalid-word"),
             OperationError::FailWritingFile => {
                 writeln!(f, "We have a problem with writing the stack in stack.fht")
+            }
+            OperationError::StringNull => {
+                writeln!(f, "The output string is Null")
             }
         }
     }
