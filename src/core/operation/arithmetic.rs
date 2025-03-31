@@ -1,10 +1,6 @@
 use std::collections::HashMap;
-
+use crate::core::operation::Operation;
 use crate::core::error::OperationError;
-
-pub trait Operation {
-    fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError>;
-}
 
 #[derive(Debug)]
 pub struct Add;
