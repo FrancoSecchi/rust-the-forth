@@ -9,8 +9,8 @@ pub enum OperationError {
 impl fmt::Display for OperationError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            OperationError::StackUnderflow => write!(f, "stack-underflow\n"),
-            OperationError::DivisionByZero => write!(f, "division-by-zero\n"),
+            OperationError::StackUnderflow => writeln!(f, "stack-underflow"),
+            OperationError::DivisionByZero => writeln!(f, "division-by-zero"),
         }
     }
 }

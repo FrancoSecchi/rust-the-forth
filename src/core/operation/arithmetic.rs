@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use crate::core::operation::Operation;
 use crate::core::error::OperationError;
+use crate::core::operation::Operation;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Add;

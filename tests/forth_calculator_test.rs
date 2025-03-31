@@ -39,7 +39,7 @@ fn test_mul_operations() {
 #[test]
 fn test_div_operations() {
     assert_eq!(eval_forth_calculator("12 3 /"), vec![4]);
-    assert_eq!(eval_forth_calculator("8 3 /"), vec![2]); 
+    assert_eq!(eval_forth_calculator("8 3 /"), vec![2]);
     assert_eq!(eval_forth_calculator("1 12 3 /"), vec![1, 4]);
 }
 
