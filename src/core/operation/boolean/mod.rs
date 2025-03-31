@@ -15,13 +15,18 @@ pub use less::Less;
 pub use not::Not;
 pub use or::Or;
 
-pub fn get_operations() -> HashMap<String, Box<dyn Operation>> {
+use super::OperationType;
+
+pub fn get_operations() -> HashMap<OperationType, Box<dyn Operation>> {
     let mut ops = HashMap::new();
-    ops.insert("=".to_string(), Box::new(Eq) as Box<dyn Operation>);
-    ops.insert("<".to_string(), Box::new(Less) as Box<dyn Operation>);
-    ops.insert(">".to_string(), Box::new(Greater) as Box<dyn Operation>);
-    ops.insert("and".to_string(), Box::new(And) as Box<dyn Operation>);
-    ops.insert("or".to_string(), Box::new(Or) as Box<dyn Operation>);
-    ops.insert("not".to_string(), Box::new(Not) as Box<dyn Operation>);
+    ops.insert(OperationType::Eq, Box::new(Eq) as Box<dyn Operation>);
+    ops.insert(OperationType::Less, Box::new(Less) as Box<dyn Operation>);
+    ops.insert(
+        OperationType::Greater,
+        Box::new(Greater) as Box<dyn Operation>,
+    );
+    ops.insert(OperationType::And, Box::new(And) as Box<dyn Operation>);
+    ops.insert(OperationType::Or, Box::new(Or) as Box<dyn Operation>);
+    ops.insert(OperationType::Not, Box::new(Not) as Box<dyn Operation>);
     ops
 }

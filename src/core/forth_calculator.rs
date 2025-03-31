@@ -1,14 +1,16 @@
+use crate::core::error::OperationError;
 use crate::core::operation::get_all_operations;
 use crate::core::operation::Operation;
 use crate::utils::file_manager;
-use crate::core::error::OperationError;
 use std::collections::HashMap;
+
+use super::operation::OperationType;
 
 pub struct ForthCalculator {
     stack: Vec<i16>,
     output: String,
     content: String,
-    operations: HashMap<String, Box<dyn Operation>>,
+    operations: HashMap<OperationType, Box<dyn Operation>>,
 }
 
 impl ForthCalculator {
@@ -33,23 +35,22 @@ impl ForthCalculator {
                 }
                 Err(_) => {
                     if token.len() == 1 {
-                        if let Some(op) = self.operations.get(token) {
-                            match op.apply(&mut self.stack) {
-                                Ok(_) => {}
-                                Err(error) => {
-                                    println!("{error}");
+                        if let Some(operation_type) = OperationType::from_token(token) {
+                            if let Some(op) = self.operations.get(&operation_type) {
+                                match op.apply(&mut self.stack) {
+                                    Ok(_) => {}
+                                    Err(error) => {
+                                        println!("{error}");
+                                    }
                                 }
                             }
-                        }
+                        }                    
                     }
                 }
             }
         }
-        match file_manager::save_stack(&self.stack) {
-            Ok(_) => {}
-            Err(_) => {
-                println!("{}", OperationError::FailWritingFile);
-            }
-        }        
+        if let Err(e) = file_manager::save_stack(&self.stack) {
+            println!("{}", OperationError::FailWritingFile)
+        };        
     }
 }
