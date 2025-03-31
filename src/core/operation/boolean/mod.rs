@@ -2,18 +2,18 @@ use crate::core::operation::Operation;
 use std::collections::HashMap;
 
 pub mod and;
-pub mod or;
 pub mod eq;
-pub mod not;
 pub mod greater;
 pub mod less;
+pub mod not;
+pub mod or;
 
 pub use and::And;
-pub use or::Or;
 pub use eq::Eq;
 pub use greater::Greater;
 pub use less::Less;
 pub use not::Not;
+pub use or::Or;
 
 pub fn get_operations() -> HashMap<String, Box<dyn Operation>> {
     let mut ops = HashMap::new();

@@ -13,8 +13,8 @@ impl fmt::Display for OperationError {
         match self {
             OperationError::StackUnderflow => writeln!(f, "stack-underflow"),
             OperationError::StackOverflow => writeln!(f, "stack-overflow"),
-            OperationError::DivisionByZero => writeln!(f, "division-by-zero"),            
-            OperationError::InvalidWord => writeln!(f, "invalid-word"),            
+            OperationError::DivisionByZero => writeln!(f, "division-by-zero"),
+            OperationError::InvalidWord => writeln!(f, "invalid-word"),
         }
     }
 }
