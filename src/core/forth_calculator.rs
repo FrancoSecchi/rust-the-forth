@@ -1,5 +1,7 @@
-use crate::core::operation::arithmetic::get_operations;
+use crate::core::operation::get_all_operations;
 use crate::core::operation::Operation;
+use crate::utils::file_manager;
+use crate::core::error::OperationError;
 use std::collections::HashMap;
 
 pub struct ForthCalculator {
@@ -15,7 +17,7 @@ impl ForthCalculator {
             stack: Vec::with_capacity(stack_size.max(0) as usize),
             output: String::new(),
             content,
-            operations: get_operations(),
+            operations: get_all_operations(),
         }
     }
 
@@ -43,5 +45,11 @@ impl ForthCalculator {
                 }
             }
         }
+        match file_manager::save_stack(&self.stack) {
+            Ok(_) => {}
+            Err(_) => {
+                println!("{}", OperationError::FailWritingFile);
+            }
+        }        
     }
 }
