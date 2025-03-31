@@ -1,6 +1,8 @@
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
+use std::str::Chars;
+
 
 /// Lee el contenido de un archivo como String
 ///
@@ -21,7 +23,7 @@ pub fn write_to_file<P: AsRef<Path>, C: AsRef<str>>(path: P, content: C) -> io::
     Ok(())
 }
 
-pub fn save_stack(stack: &Vec<i16>) -> io::Result<()> {
+pub fn save_stack(stack: &[i16]) -> io::Result<()> {
     let stack_str = stack
         .iter()
         .map(|n| n.to_string())
@@ -32,39 +34,54 @@ pub fn save_stack(stack: &Vec<i16>) -> io::Result<()> {
 }
 
 pub fn tokenize(input: &str) -> Vec<String> {
-    let mut chars = input.chars().peekable();
     let mut tokens = Vec::new();
-    let mut current = String::new();
-
-    while let Some(c) = chars.next() {
+    let mut chars = input.chars().peekable();
+    while let Some(&c) = chars.peek() {
         if c.is_whitespace() {
-            if !current.is_empty() {
-                tokens.push(current);
-                current = String::new();
-            }
-        } else if c == '.' && chars.peek() == Some(&'"') {            
-            current.push(c); 
-            if let Some(next) = chars.next() { 
-                current.push(next); 
-            }
+            chars.next();
+            continue;
+        }                     
+        if c == '.' {
+            let mut candidate = String::new();
+            candidate.push(c);
+            chars.next();
+            if let Some(&next_char) = chars.peek() {
+                if next_char == '"' {
+                    candidate.push('"');
+                    chars.next();    
+                    let mut literal = String::new();
+                    while let Some(ch) = chars.next() {
+                        if ch == '"' {
+                            break;
+                        }
+                        literal.push(ch);
+                    }
 
-            if let Some(&next) = chars.peek() {
-                if next.is_whitespace() {
-                    current.push(' '); 
-                    chars.next();
+                    tokens.push(format!(".\"{}\"", literal));
+                    continue;
+                } else {
+                    tokens.push(candidate);
+                    continue;
                 }
+            } else {
+                tokens.push(candidate);
+                continue;
             }
-
-            tokens.push(current); 
-            current = String::new();
-        } else {
-            current.push(c);
-        }
+        }        
+        tokens.push(get_normal_token(&mut chars));
     }
-
-    if !current.is_empty() {
-        tokens.push(current);
-    }
-
     tokens
+}
+
+
+fn get_normal_token(chars: &mut std::iter::Peekable<Chars>) -> String {
+    let mut token = String::new();
+    while let Some(&ch) = chars.peek() {
+        if ch.is_whitespace() {
+            break;
+        }
+        token.push(ch);
+        chars.next();
+    }
+    token
 }
