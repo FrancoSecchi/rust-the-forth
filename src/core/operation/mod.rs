@@ -33,6 +33,8 @@ pub enum OperationType {
     Swap,
     Dot,
     Cr,
+    PrintText,
+    Emit
 }
 
 impl OperationType {
@@ -58,6 +60,8 @@ impl OperationType {
             "dup" => Some(OperationType::Dup),
             "." => Some(OperationType::Dot),
             "cr" => Some(OperationType::Cr),
+            "emit" => Some(OperationType::Emit),
+            //"." => Some(OperationType::PrintText),
             _ => None,
         }
     }
