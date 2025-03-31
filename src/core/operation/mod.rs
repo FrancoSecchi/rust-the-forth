@@ -10,8 +10,12 @@ pub trait Operation {
 }
 
 pub trait OperationOutput {
-    fn apply(&self, stack: &mut Vec<i16>, string_output: &mut String, tokens: &Vec<String>)
-        -> Result<(), OperationError>;
+    fn apply(
+        &self,
+        stack: &mut Vec<i16>,
+        string_output: &mut String,
+        text_to_print: &str,
+    ) -> Result<(), OperationError>;
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -34,11 +38,14 @@ pub enum OperationType {
     Dot,
     Cr,
     PrintText,
-    Emit
+    Emit,
 }
 
 impl OperationType {
     pub fn from_token(token: &str) -> Option<Self> {
+        if token.starts_with(".\"") && token.chars().nth(2) == Some(' ') {
+            return Some(OperationType::PrintText);
+        }
         match token {
             //Arithmetic
             "+" => Some(OperationType::Add),
@@ -61,7 +68,6 @@ impl OperationType {
             "." => Some(OperationType::Dot),
             "cr" => Some(OperationType::Cr),
             "emit" => Some(OperationType::Emit),
-            ".\" " => Some(OperationType::PrintText),
             _ => None,
         }
     }
