@@ -59,6 +59,40 @@ fn test_print_text_empty() {
 }
 
 #[test]
+fn test_print_text_mulitple_whitespaces() {
+    let mut stack: Vec<i16> = vec![];
+    let mut output = String::new();
+
+    PrintText
+        .apply(
+            &mut stack,
+            &mut output,
+            &".\" hello      world!\"".to_string(),
+        )
+        .unwrap();
+
+    assert_eq!(stack, vec![]);
+    assert_eq!(output, " hello      world!");
+}
+
+#[test]
+fn test_print_text_dot_qoute_mulitple() {
+    let mut stack: Vec<i16> = vec![];
+    let mut output = String::new();
+
+    PrintText
+        .apply(&mut stack, &mut output, &".\" hello\"".to_string())
+        .unwrap();
+
+    PrintText
+        .apply(&mut stack, &mut output, &".\" world\"".to_string())
+        .unwrap();
+
+    assert_eq!(stack, vec![]);
+    assert_eq!(output, " hello world");
+}
+
+#[test]
 fn test_print_text_with_numbers_before() {
     let mut stack: Vec<i16> = vec![42];
     let mut output = String::new();
