@@ -26,6 +26,6 @@ fn main() {
         return;
     }
 
-    let forth_calculator = ForthCalculator::new(content, cli_manager::get_size_of_stack(&args));
+    let mut forth_calculator = ForthCalculator::new(content, cli_manager::get_size_of_stack(&args));
     forth_calculator.run();
 }
