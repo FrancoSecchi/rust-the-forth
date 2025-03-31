@@ -10,16 +10,13 @@ impl OperationOutput for Emit {
         output: &mut String,
         _text_to_print: &str,
     ) -> Result<(), OperationError> {
-        if let Some(value) = stack.pop() {
-            if let Some(ch) = char::from_u32(value as u32) {
-                output.push_str(&format!("{} ", ch));
-                Ok(())
-            } else {
-                Err(OperationError::InvalidCharacter)
-            }
+        let num = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        if let Some(ch) = char::from_u32(num as u32) {
+            output.push_str(&format!("{} ", ch));
+            Ok(())
         } else {
-            Err(OperationError::StackUnderflow)
-        }
+            Err(OperationError::InvalidCharacter)
+        } 
     }
 }
 

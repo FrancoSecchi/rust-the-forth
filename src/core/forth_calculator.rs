@@ -59,8 +59,7 @@ impl ForthCalculator {
     /// If an error occurs, it is logged and execution stops.
     pub fn run(&mut self, content: String) {
         let mut output = String::new();
-        let input_tokens = file_manager::tokenize(&content);
-
+        let input_tokens = file_manager::tokenize(&content);        
         for token in input_tokens {
             let result = match token.parse::<i16>() {
                 Ok(number) => self.push_number(number),
@@ -110,7 +109,7 @@ impl ForthCalculator {
         self.stack.push(number);
         Ok(())
     }
-    
+
     /// Executes an operation based on the provided token.  
     ///
     /// # Arguments
@@ -126,14 +125,15 @@ impl ForthCalculator {
         &mut self,
         token: &str,
         output: &mut String,
-    ) -> Result<(), OperationError> {
+    ) -> Result<(), OperationError> {        
         let operation_type =
             OperationType::from_token(token).ok_or(OperationError::WordNotFound)?;
+        if let Some(operation) = self.operations.get(&operation_type) {
+            return operation.apply(&mut self.stack);
+        }
 
-        if token.len() == 1 {
-            if let Some(operation) = self.operations.get(&operation_type) {
-                return operation.apply(&mut self.stack);
-            }
+        if let Some(operation) = self.output_operations.get(&operation_type) {
+            return operation.apply(&mut self.stack, output, token);
         }
 
         let operation = self
