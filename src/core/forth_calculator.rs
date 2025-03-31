@@ -44,7 +44,11 @@ impl ForthCalculator {
         }
         if let Err(e) = file_manager::save_stack(&self.stack) {
             println!("{e}");
-        };        
+        };
+        
+        if !output.is_empty(){
+            println!("{output}");
+        }
     }
 
     fn push_number(&mut self, number: i16) -> Result<(), OperationError> {
