@@ -69,6 +69,26 @@ impl Operation for Over {
     }
 }
 
+#[derive(Debug)]
+pub struct Rot;
+
+impl Operation for Rot {
+    fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
+        if stack.is_empty() {
+            return Err(OperationError::StackUnderflow);
+        }
+
+        let first_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let second_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let third_item = stack.pop().ok_or(OperationError::StackUnderflow)?;
+        
+        stack.push(third_item);
+        stack.push(first_item);
+        stack.push(second_item);
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
