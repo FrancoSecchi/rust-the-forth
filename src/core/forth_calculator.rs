@@ -18,7 +18,11 @@ impl ForthCalculator {
         }
     }
 
-    pub fn run(mut self) {
+    pub fn get_stack(&self) -> &Vec<i16> {
+        &self.stack
+    }
+
+    pub fn run(&mut self) {
         for token in self.content.split_whitespace() {
             match token.parse::<i16>() {
                 Ok(number) => {
@@ -38,11 +42,5 @@ impl ForthCalculator {
                 }
             }
         }
-
-        println!(
-            "{:#?} las keys de as operaciones son {:#?}",
-            self.stack,
-            self.operations.keys()
-        );
     }
 }
