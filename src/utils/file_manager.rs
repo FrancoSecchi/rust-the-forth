@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
-use std::str::Chars;
 
 // Reads the entire contents of a file into a `String`.
 ///
@@ -81,62 +80,42 @@ pub fn save_stack(stack: &[i16]) -> io::Result<()> {
 /// // tokens: ["Hello", ".\"world\""]
 /// ```
 pub fn tokenize(input: &str) -> Vec<String> {
+    let chars: Vec<char> = input.chars().collect();
     let mut tokens = Vec::new();
-    let mut chars = input.chars().peekable();
-    while let Some(&c) = chars.peek() {
-        if c.is_whitespace() {
-            chars.next();
+    let mut i = 0;
+
+    while i < chars.len() {
+        if chars[i].is_whitespace() {
+            i += 1;
             continue;
         }
-        if c == '.' {
-            let mut candidate = String::new();
-            candidate.push(c);
-            chars.next();
-            if let Some(&next_char) = chars.peek() {
-                if next_char == '"' {
-                    candidate.push('"');
-                    chars.next();
-                    let mut literal = String::new();
-                    while let Some(ch) = chars.next() {
-                        if ch == '"' {
-                            break;
-                        }
-                        literal.push(ch);
-                    }
+        if chars[i] == '.' {
+            if i + 2 < chars.len() && chars[i..i + 3] == ['.', '"', ' '] {
+                let mut literal = String::new();
+                literal.push(' ');
+                i += 3;
 
-                    tokens.push(format!(".\"{}\"", literal));
-                    continue;
-                } else {
-                    tokens.push(candidate);
-                    continue;
+                while i < chars.len() && chars[i] != '"' {
+                    literal.push(chars[i]);
+                    i += 1;
                 }
+                if i < chars.len() && chars[i] == '"' {
+                    i += 1;
+                }
+                tokens.push(format!(".\"{}\"", literal));
+                continue;
             } else {
-                tokens.push(candidate);
+                tokens.push(".".to_string());
+                i += 1;
                 continue;
             }
         }
-        tokens.push(get_normal_token(&mut chars));
+
+        let start = i;
+        while i < chars.len() && !chars[i].is_whitespace() {
+            i += 1;
+        }
+        tokens.push(chars[start..i].iter().collect());
     }
     tokens
-}
-
-/// Extracts a normal token from the given character iterator.
-///
-/// The token is constructed by reading characters until a whitespace is encountered.
-///
-/// # Arguments
-/// * `chars` - A mutable peekable iterator over characters.
-///
-/// # Returns
-/// A `String` representing the token.
-fn get_normal_token(chars: &mut std::iter::Peekable<Chars>) -> String {
-    let mut token = String::new();
-    while let Some(&ch) = chars.peek() {
-        if ch.is_whitespace() {
-            break;
-        }
-        token.push(ch);
-        chars.next();
-    }
-    token
 }
