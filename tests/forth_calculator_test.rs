@@ -159,8 +159,6 @@ fn test_stack_manipulation_operations() {
 #[test]
 fn test_output_operations() {
     let mut calculator: ForthCalculator = create_calculator(DEFAULT_STACK_SIZE);
-    let mut output = String::new();
-
     // . (DOT): imprime el último elemento de la pila y lo elimina
     calculator.run("42 .".to_string());
     assert_eq!(calculator.get_stack().clone(), vec![]);
