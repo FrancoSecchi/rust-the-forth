@@ -1,3 +1,4 @@
+use rust_the_forth::core::error::OperationError;
 use rust_the_forth::core::forth_calculator::ForthCalculator;
 use rust_the_forth::utils::{cli_manager, file_manager};
 use std::env;
@@ -22,6 +23,9 @@ fn main() {
     };
 
     if error {
+        if let Err(_e) = file_manager::save_stack(&Vec::new()) {
+            println!("{}", OperationError::FailWritingFile);        
+        }
         println!("Error al abrir el archivo.");
         return;
     }
