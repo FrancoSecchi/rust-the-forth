@@ -24,9 +24,9 @@ fn main() {
 
     if error {
         if let Err(_e) = file_manager::save_stack(&Vec::new()) {
-            println!("{}", OperationError::FailWritingFile);        
+            println!("{}", OperationError::FailWritingFile);
         }
-        println!("Error al abrir el archivo.");
+        println!("{}", OperationError::FailWritingFile);
         return;
     }
 
