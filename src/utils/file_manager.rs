@@ -76,8 +76,8 @@ pub fn save_stack(stack: &[i16]) -> io::Result<()> {
 ///
 /// # Examples
 /// ``` text
-/// let tokens = file_manager::tokenize("Hello .\"world\"");
-/// // tokens: ["Hello", ".\"world\""]
+/// let tokens = file_manager::tokenize("Hello .\" world\"");
+/// // tokens: ["Hello", ".\" world\""]
 /// ```
 pub fn tokenize(input: &str) -> Vec<String> {
     let chars: Vec<char> = input.chars().collect();
