@@ -35,10 +35,10 @@ impl fmt::Display for OperationError {
             OperationError::InvalidWord => writeln!(f, "invalid-word"),
             OperationError::FailWritingFile => {
                 writeln!(f, "We have a problem with writing the stack in stack.fht")
-            },
+            }
             OperationError::FailReadFile => {
                 writeln!(f, "We have a problem with reading the file")
-            },
+            }
             OperationError::StringNull => {
                 writeln!(f, "The output string is Null")
             }
