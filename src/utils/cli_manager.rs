@@ -1,3 +1,5 @@
+use crate::core::error::CommandArgsError;
+
 /// Tamaño en bytes de un tipo i16 (2 bytes)
 const I16_SIZE: i16 = 2;
 
@@ -31,27 +33,25 @@ fn convert_bytes_to_elements_amount(size: i16) -> i16 {
 /// use rust_the_forth::utils::validate_stack_size_arg;
 /// let validacion = validate_stack_size_arg(&String::from("stack-size=10"));
 /// ```
-fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
+fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), CommandArgsError> {
     let string_split: Vec<&str> = stack_size_arg.split('=').collect();
 
     if string_split.len() >= 2 {
         match string_split[1].parse::<i16>() {
             Ok(size) => {
                 if convert_bytes_to_elements_amount(size) <= 0 {
-                    return Err(
-                        "El tamaño especificado no puede ser nulo o menor o igual a uno".into(),
-                    );
+                    return Err(CommandArgsError::InvalidStackSize);
                 } else {
                     return Ok(());
                 }
             }
             Err(_) => {
-                return Err("Error al parsear el numero de stack-size".into());
+                return Err(CommandArgsError::FailParseStackSize);
             }
         }
     }
 
-    Err("Formato inválido: falta el '='".into())
+    Err(CommandArgsError::InvalidFormat)
 }
 
 /// Valida los argumentos pasados al programa
@@ -69,14 +69,14 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), String> {
 /// let args: Vec<String> = env::args().collect();
 /// let validacion = validate_command_args(&args);
 /// ```
-pub fn validate_command_args(args: &[String]) -> Result<(), String> {
+pub fn validate_command_args(args: &[String]) -> Result<(), CommandArgsError> {
     if args.len() <= 1 {
-        return Err("No se ha especificado el archivo".into());
+        return Err(CommandArgsError::FileNotSpecified);
     }
 
     let arg_file = &args[1];
     if !arg_file.contains(".") {
-        return Err("El primer parametro debe ser el archivo a lee".into());
+        return Err(CommandArgsError::InvalidFileFormat);
     }
 
     if args.len() <= 2 {

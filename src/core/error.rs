@@ -23,6 +23,30 @@ pub enum OperationError {
     WordNotFound,
 }
 
+
+pub enum CommandArgsError {
+    InvalidStackSize,
+    FailParseStackSize,
+    InvalidFormat,
+    FileNotSpecified, 
+    InvalidFileFormat,
+}
+
+impl fmt::Display for CommandArgsError {    
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            CommandArgsError::InvalidStackSize => writeln!(f, "Stack size cannot be zero or less than or equal to one"),
+            CommandArgsError::FailParseStackSize => writeln!(f, "There was an error parsing the number for stack-size"),
+            CommandArgsError::InvalidFileFormat => writeln!(f, "The first parameter should be the file to read"),
+            CommandArgsError::InvalidFormat => writeln!(f, "Invalid format: the '=' is missing "),
+            CommandArgsError::FileNotSpecified => {
+                writeln!(f, "The file to be read has not been specified ")
+            }
+        }
+    }
+}
+
+
 impl fmt::Display for OperationError {
     /// Formats the error message for display.
     ///
