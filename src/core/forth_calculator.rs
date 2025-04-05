@@ -1,11 +1,10 @@
+use super::operation::OperationOutput;
+use super::operation::OperationType;
 use crate::core::error::OperationError;
 use crate::core::operation::Operation;
 use crate::core::operation::{get_all_standar_operations, get_output_operations};
 use crate::utils::file_manager;
 use std::collections::HashMap;
-
-use super::operation::OperationOutput;
-use super::operation::OperationType;
 
 /// A stack-based calculator implementing a subset of the Forth language.
 /// This calculator supports arithmetic operations, boolean operations,
@@ -19,6 +18,8 @@ pub struct ForthCalculator {
     operations: HashMap<OperationType, Box<dyn Operation>>,
     /// Mapping of output-related operations (e.g., printing, emitting characters).
     output_operations: HashMap<OperationType, Box<dyn OperationOutput>>,
+
+    output: String,
 }
 
 impl ForthCalculator {
@@ -37,8 +38,14 @@ impl ForthCalculator {
             stack: Vec::new(),
             operations: get_all_standar_operations(),
             output_operations: get_output_operations(),
+            output: String::new(),
         }
     }
+
+    pub fn get_output(&self) -> &String {
+        &self.output
+    }
+
     /// Returns a reference to the current stack.
     ///
     /// # Returns
@@ -75,9 +82,7 @@ impl ForthCalculator {
             self.add_string_output_error(&mut output, OperationError::FailWritingFile);
         }
 
-        if !output.is_empty() {
-            println!("{output}");
-        }
+        self.output = output;
     }
 
     /// Appends an error message to the output string.
