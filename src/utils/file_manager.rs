@@ -11,9 +11,6 @@ use std::path::Path;
 /// ```text
 /// let content = file_manager::read_to_string("example.fth")?;
 /// ```
-///
-/// # Errors
-/// Returns an `io::Error` if the file cannot be opened or read.
 pub fn read_to_string<P: AsRef<Path>>(path: P) -> io::Result<String> {
     let mut file = File::open(path)?;
     let mut content = String::new();
@@ -32,8 +29,6 @@ pub fn read_to_string<P: AsRef<Path>>(path: P) -> io::Result<String> {
 /// file_manager::write_to_file("output.txt", "Hello, world!")?;
 /// ```
 ///
-/// # Errors
-/// Returns an `io::Error` if the file cannot be created or written to.
 pub fn write_to_file<P: AsRef<Path>, C: AsRef<str>>(path: P, content: C) -> io::Result<()> {
     let mut file = File::create(path)?;
     file.write_all(content.as_ref().as_bytes())?;
@@ -52,9 +47,6 @@ pub fn write_to_file<P: AsRef<Path>, C: AsRef<str>>(path: P, content: C) -> io::
 /// ``` text
 /// file_manager::save_stack(&[1, 2, 3])?;
 /// ```
-///
-/// # Errors
-/// Returns an `io::Error` if the file cannot be written.
 pub fn save_stack(stack: &[i16]) -> io::Result<()> {
     let stack_str = stack
         .iter()

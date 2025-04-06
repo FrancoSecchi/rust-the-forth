@@ -52,9 +52,6 @@ impl fmt::Display for CommandArgsError {
 }
 
 impl fmt::Display for OperationError {
-    /// Formats the error message for display.
-    ///
-    /// Each variant of `OperationError` is converted into a user-friendly message.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             OperationError::StackUnderflow => writeln!(f, "stack-underflow"),

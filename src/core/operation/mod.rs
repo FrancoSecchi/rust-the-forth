@@ -104,10 +104,6 @@ impl OperationType {
 /// and returns them as a collection where each `OperationType` is mapped
 /// to a boxed `Operation` trait object.
 ///
-/// # Returns
-/// A `HashMap` where the keys are `OperationType` values and the values
-/// are boxed dynamic trait objects implementing `Operation`.
-///
 /// # Examples
 /// ```text
 /// let operations = get_all_standar_operations();
@@ -124,11 +120,7 @@ pub fn get_all_standar_operations() -> HashMap<OperationType, Box<dyn Operation>
 ///
 /// This function collects operations that produce output (e.g., printing),
 /// mapping each `OperationType` to a boxed `OperationOutput` trait object.
-///
-/// # Returns
-/// A `HashMap` where the keys are `OperationType` values and the values
-/// are boxed dynamic trait objects implementing `OperationOutput`.
-///
+/// 
 /// # Examples
 /// ```text
 /// let output_operations = get_output_operations();

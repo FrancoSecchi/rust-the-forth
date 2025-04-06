@@ -8,9 +8,6 @@ const I16_SIZE: i16 = 2;
 /// # Argumentos
 /// * `size` - Tamaño en bytes a convertir
 ///
-/// # Retorno
-/// Cantidad de elementos i16 que caben en ese tamaño
-///
 /// # Ejemplo
 /// ``` text
 /// use rust_the_forth::utils::convert_bytes_to_elements_amount;
@@ -24,9 +21,6 @@ fn convert_bytes_to_elements_amount(size: i16) -> i16 {
 ///
 /// # Argumentos
 /// * `stack_size_arg` - Cadena con el argumento a validar
-///
-/// # Retorno
-/// `Result<(), String>` con el resultado de la validación
 ///
 /// # Ejemplo
 /// ``` text
@@ -59,9 +53,6 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), CommandArgsError>
 /// # Argumentos
 /// * `args` - Vector con los argumentos del programa
 ///
-/// # Retorno
-/// `Result<(), String>` con el resultado de la validación
-///
 /// # Ejemplo
 /// ``` text
 /// use std::env;
@@ -90,9 +81,6 @@ pub fn validate_command_args(args: &[String]) -> Result<(), CommandArgsError> {
 ///
 /// # Argumentos
 /// * `args` - Vector con los argumentos del programa
-///
-/// # Retorno
-/// `i16` el valor del stack-size
 ///
 /// # Ejemplo
 /// ``` text

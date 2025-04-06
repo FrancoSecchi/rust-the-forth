@@ -28,10 +28,6 @@ impl ForthCalculator {
     /// # Arguments
     ///
     /// * `stack_size` - The maximum number of elements allowed in the stack.
-    ///
-    /// # Returns
-    ///
-    /// * A new `ForthCalculator` instance.
     pub fn new(stack_size: i16) -> Self {
         ForthCalculator {
             max_stack_size: stack_size,
@@ -47,10 +43,6 @@ impl ForthCalculator {
     }
 
     /// Returns a reference to the current stack.
-    ///
-    /// # Returns
-    ///
-    /// * `&Vec<i16>` - A reference to the internal stack vector.
     pub fn get_stack(&self) -> &Vec<i16> {
         &self.stack
     }
@@ -100,11 +92,6 @@ impl ForthCalculator {
     /// # Arguments
     ///
     /// * `number` - The number to be pushed onto the stack.
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(())` if the number was successfully pushed.
-    /// * `Err(OperationError::StackOverflow)` if the stack is full.
     fn push_number(&mut self, number: i16) -> Result<(), OperationError> {
         if self.stack.len() == self.max_stack_size as usize {
             return Err(OperationError::StackOverflow);
@@ -120,11 +107,6 @@ impl ForthCalculator {
     ///
     /// * `token` - The string representation of the operation.
     /// * `output` - A mutable reference to the output string (used for operations that produce output).
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(())` if the operation was successfully executed.
-    /// * `Err(OperationError::WordNotFound)` if the operation is not recognized.
     fn execute_operation(
         &mut self,
         token: &str,
