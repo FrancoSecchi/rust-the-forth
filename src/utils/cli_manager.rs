@@ -110,7 +110,6 @@ pub fn get_size_of_stack(args: &[String]) -> i16 {
     default_len
 }
 
-
 /// Tests unitarios
 #[cfg(test)]
 mod cli_manager_tests {

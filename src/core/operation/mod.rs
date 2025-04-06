@@ -1,25 +1,25 @@
 use crate::core::error::OperationError;
 use std::collections::HashMap;
-/// The `arithmetic` module provides basic arithmetic operations 
-/// such as addition, subtraction, multiplication, and division. 
-/// Each operation implements the `Operation` trait and modifies 
+/// The `arithmetic` module provides basic arithmetic operations
+/// such as addition, subtraction, multiplication, and division.
+/// Each operation implements the `Operation` trait and modifies
 /// the stack accordingly.
 pub mod arithmetic;
 
-/// The `boolean` module defines logical operations including equality (`=`), 
+/// The `boolean` module defines logical operations including equality (`=`),
 /// greater than (`>`), less than (`<`), logical `AND`, `OR`, and `NOT`.
-/// Each operation adheres to the `Operation` trait and operates on values 
+/// Each operation adheres to the `Operation` trait and operates on values
 /// from the stack to return boolean results.
 pub mod boolean;
 
-/// The `output` module includes operations related to standard output 
+/// The `output` module includes operations related to standard output
 /// such as printing values or characters from the stack.
 /// It enables user-visible output through the `.` (dot), `cr`, `."`, and `emit` operations.
 pub mod output;
 
-/// The `stack_manipulation` module provides fundamental operations 
-/// to manipulate the state of the stack. 
-/// This includes `dup`, `drop`, `swap`, `rot`, and `over`, 
+/// The `stack_manipulation` module provides fundamental operations
+/// to manipulate the state of the stack.
+/// This includes `dup`, `drop`, `swap`, `rot`, and `over`,
 /// all of which implement the `Operation` trait.
 pub mod stack_manipulation;
 
