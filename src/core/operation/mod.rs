@@ -1,8 +1,26 @@
 use crate::core::error::OperationError;
 use std::collections::HashMap;
+/// The `arithmetic` module provides basic arithmetic operations 
+/// such as addition, subtraction, multiplication, and division. 
+/// Each operation implements the `Operation` trait and modifies 
+/// the stack accordingly.
 pub mod arithmetic;
+
+/// The `boolean` module defines logical operations including equality (`=`), 
+/// greater than (`>`), less than (`<`), logical `AND`, `OR`, and `NOT`.
+/// Each operation adheres to the `Operation` trait and operates on values 
+/// from the stack to return boolean results.
 pub mod boolean;
+
+/// The `output` module includes operations related to standard output 
+/// such as printing values or characters from the stack.
+/// It enables user-visible output through the `.` (dot), `cr`, `."`, and `emit` operations.
 pub mod output;
+
+/// The `stack_manipulation` module provides fundamental operations 
+/// to manipulate the state of the stack. 
+/// This includes `dup`, `drop`, `swap`, `rot`, and `over`, 
+/// all of which implement the `Operation` trait.
 pub mod stack_manipulation;
 
 /// Defines a trait for stack-based operations.
@@ -42,6 +60,9 @@ pub trait OperationOutput {
     ) -> Result<(), OperationError>;
 }
 
+/// Represents the different types of operations supported by the Forth interpreter.
+/// Each variant corresponds to a recognized operation token in the source code.
+/// This enum is used as a key in the operations dispatch table.
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum OperationType {
     Add,
@@ -120,7 +141,7 @@ pub fn get_all_standar_operations() -> HashMap<OperationType, Box<dyn Operation>
 ///
 /// This function collects operations that produce output (e.g., printing),
 /// mapping each `OperationType` to a boxed `OperationOutput` trait object.
-/// 
+///
 /// # Examples
 /// ```text
 /// let output_operations = get_output_operations();

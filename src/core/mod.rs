@@ -1,3 +1,24 @@
+/// This module defines custom error types used throughout the application.
+///
+/// It includes error enums and trait implementations for displaying
+/// meaningful messages to the user and aiding debugging.
+///
+/// These errors are used for command-line argument validation,
+/// runtime stack operations, file handling, and general interpreter failures.
 pub mod error;
+
+/// Implements the core logic of the Forth interpreter.
+///
+/// This module provides the `ForthCalculator` struct, which is responsible for parsing
+/// input commands, executing supported operations, and maintaining the internal stack state.
+/// It acts as the main entry point for running Forth-like code within the application.
 pub mod forth_calculator;
+
+/// Defines the abstraction and concrete implementations for stack operations.
+///
+/// This module introduces the `Operation` trait and groups different categories of operations,
+/// including arithmetic, boolean, stack manipulation, and output-related behaviors.
+///
+/// It also provides a utility function `get_operations()` to retrieve all supported operations
+/// in a structured map for execution.
 pub mod operation;

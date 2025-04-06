@@ -23,11 +23,24 @@ pub enum OperationError {
     WordNotFound,
 }
 
+/// Represents possible errors that can occur during the validation of command-line arguments.
+///
+/// These errors are used to handle incorrect or malformed input passed to the CLI.
+/// Each variant corresponds to a specific issue that may be encountered.
 pub enum CommandArgsError {
+    /// The specified stack size is zero or less than or equal to one, which is invalid.
     InvalidStackSize,
+
+    /// Failed to parse the provided stack size value into a valid number.
     FailParseStackSize,
+
+    /// The provided argument format is incorrect (e.g., missing `=` in `--key=value`).
     InvalidFormat,
+
+    /// No input file was specified by the user.
     FileNotSpecified,
+
+    /// The file argument is not in the expected position or format.
     InvalidFileFormat,
 }
 

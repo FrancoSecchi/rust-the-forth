@@ -1,31 +1,31 @@
 use crate::core::error::CommandArgsError;
 
-/// Tamaño en bytes de un tipo i16 (2 bytes)
+/// Size in bytes of an i16 type (2 bytes)
 const I16_SIZE: i16 = 2;
 
-/// Convierte un tamaño en bytes a cantidad de elementos i16
+/// Converts a byte size to the number of i16 elements
 ///
-/// # Argumentos
-/// * `size` - Tamaño en bytes a convertir
+/// # Arguments
+/// * `size` - Byte size to convert
 ///
-/// # Ejemplo
-/// ``` text
+/// # Example
+/// ```text
 /// use rust_the_forth::utils::convert_bytes_to_elements_amount;
-/// let elementos = convert_bytes_to_elements_amount(10); // Retorna 5
+/// let elements = convert_bytes_to_elements_amount(10); // Returns 5
 /// ```
 fn convert_bytes_to_elements_amount(size: i16) -> i16 {
     size / I16_SIZE
 }
 
-/// Valida el argumento de tamaño de stack (formato "stack-size=N")
+/// Validates the stack size argument (format: "stack-size=N")
 ///
-/// # Argumentos
-/// * `stack_size_arg` - Cadena con el argumento a validar
+/// # Arguments
+/// * `stack_size_arg` - String containing the argument to validate
 ///
-/// # Ejemplo
-/// ``` text
+/// # Example
+/// ```text
 /// use rust_the_forth::utils::validate_stack_size_arg;
-/// let validacion = validate_stack_size_arg(&String::from("stack-size=10"));
+/// let validation = validate_stack_size_arg(&String::from("stack-size=10"));
 /// ```
 fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), CommandArgsError> {
     let string_split: Vec<&str> = stack_size_arg.split('=').collect();
@@ -48,17 +48,17 @@ fn validate_stack_size_arg(stack_size_arg: &str) -> Result<(), CommandArgsError>
     Err(CommandArgsError::InvalidFormat)
 }
 
-/// Valida los argumentos pasados al programa
+/// Validates the arguments passed to the program
 ///
-/// # Argumentos
-/// * `args` - Vector con los argumentos del programa
+/// # Arguments
+/// * `args` - Vector of program arguments
 ///
-/// # Ejemplo
-/// ``` text
+/// # Example
+/// ```text
 /// use std::env;
 /// use rust_the_forth::utils::validate_command_args;
 /// let args: Vec<String> = env::args().collect();
-/// let validacion = validate_command_args(&args);
+/// let validation = validate_command_args(&args);
 /// ```
 pub fn validate_command_args(args: &[String]) -> Result<(), CommandArgsError> {
     if args.len() <= 1 {
@@ -77,13 +77,13 @@ pub fn validate_command_args(args: &[String]) -> Result<(), CommandArgsError> {
     validate_stack_size_arg(&args[2])
 }
 
-/// Devuelve la cantidad de elementos que permite el valor del argumento del stack-size
+/// Returns the number of elements allowed by the `stack-size` argument
 ///
-/// # Argumentos
-/// * `args` - Vector con los argumentos del programa
+/// # Arguments
+/// * `args` - Vector of program arguments
 ///
-/// # Ejemplo
-/// ``` text
+/// # Example
+/// ```text
 /// use std::env;
 /// use rust_the_forth::utils::get_size_of_stack;
 /// let args: Vec<String> = env::args().collect();
@@ -109,6 +109,7 @@ pub fn get_size_of_stack(args: &[String]) -> i16 {
     }
     default_len
 }
+
 
 /// Tests unitarios
 #[cfg(test)]

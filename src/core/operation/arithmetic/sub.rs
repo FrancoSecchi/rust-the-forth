@@ -1,10 +1,21 @@
 use crate::core::error::OperationError;
 use crate::core::operation::Operation;
 
+/// Represents the subtraction operation (`-`).
+///
+/// This operation pops the top two values from the stack,
+/// subtracts the top value from the second-top value,
+/// and pushes the result back onto the stack.
 #[derive(Debug)]
 pub struct Sub;
 
 impl Operation for Sub {
+    /// Applies the subtraction operation to the provided stack.
+    ///
+    /// # Arguments
+    ///
+    /// * `stack` - A mutable reference to a stack of 16-bit integers.
+    ///    
     fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
         let a = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let b = stack.pop().ok_or(OperationError::StackUnderflow)?;

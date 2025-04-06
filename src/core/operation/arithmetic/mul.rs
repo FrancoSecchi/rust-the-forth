@@ -1,10 +1,19 @@
 use crate::core::error::OperationError;
 use crate::core::operation::Operation;
 
+/// Represents the multiplication operation (`*`).
+///
+/// This operation pops the top two values from the stack,
+/// multiplies them, and pushes the result back onto the stack.
 #[derive(Debug)]
 pub struct Mul;
 
 impl Operation for Mul {
+    /// Applies the multiplication operation to the provided stack.
+    ///
+    /// # Arguments
+    ///
+    /// * `stack` - A mutable reference to a stack of 16-bit integers.    
     fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
         let a = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let b = stack.pop().ok_or(OperationError::StackUnderflow)?;

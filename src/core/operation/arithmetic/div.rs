@@ -1,10 +1,31 @@
 use crate::core::error::OperationError;
 use crate::core::operation::Operation;
 
+/// Represents the division operation (`/`).
+///
+/// This operation pops the top two values from the stack,
+/// divides the second-top value by the top value,
+/// and pushes the result back onto the stack.
+///
+/// # Note
+///
+/// If division by zero is attempted, this operation returns
+/// `OperationError::DivisionByZero`.
 #[derive(Debug)]
 pub struct Div;
 
 impl Operation for Div {
+    /// Applies the division operation to the provided stack.
+    ///
+    /// # Arguments
+    ///
+    /// * `stack` - A mutable reference to a stack of 16-bit integers.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(())` if the operation is successful.
+    /// * `Err(OperationError::StackUnderflow)` if the stack has fewer than two elements.
+    /// * `Err(OperationError::DivisionByZero)` if the divisor is zero.
     fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
         let divisor = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let dividen: i16 = stack.pop().ok_or(OperationError::StackUnderflow)?;

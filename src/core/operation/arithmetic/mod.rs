@@ -1,9 +1,13 @@
 use crate::core::operation::Operation;
 use std::collections::HashMap;
 
+/// Represents the addition operation (`+`).
 pub mod add;
+/// Represents the division operation (`/`).
 pub mod div;
+/// Represents the multiplication operation (`*`).
 pub mod mul;
+/// Represents the subtraction operation (`-`).
 pub mod sub;
 
 use super::OperationType;

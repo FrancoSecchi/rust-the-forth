@@ -1,10 +1,20 @@
 use crate::core::error::OperationError;
 use crate::core::operation::Operation;
 
+/// Represents the addition operation (`+`).
+///
+/// This operation pops the top two values from the stack,
+/// adds them, and pushes the result back onto the stack.
 #[derive(Debug)]
 pub struct Add;
 
 impl Operation for Add {
+    /// Applies the addition operation to the provided stack.
+    ///
+    /// # Arguments
+    ///
+    /// * `stack` - A mutable reference to a stack of 16-bit integers.
+    ///
     fn apply(&self, stack: &mut Vec<i16>) -> Result<(), OperationError> {
         let a = stack.pop().ok_or(OperationError::StackUnderflow)?;
         let b = stack.pop().ok_or(OperationError::StackUnderflow)?;
