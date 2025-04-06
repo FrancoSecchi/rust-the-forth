@@ -151,14 +151,17 @@ fn test_output_operations() {
 
     calculator.run("42 .".to_string());
     assert_eq!(calculator.get_stack().clone(), vec![]);
+    assert_eq!(calculator.get_output().clone(), "42 ");
     calculator = create_calculator(DEFAULT_STACK_SIZE);
 
     calculator.run("1 2 cr".to_string());
     assert_eq!(calculator.get_stack().clone(), vec![1, 2]);
+    assert_eq!(calculator.get_output().clone(), "\n");
     calculator = create_calculator(DEFAULT_STACK_SIZE);
 
     calculator.run("65 emit".to_string());
     assert_eq!(calculator.get_stack().clone(), vec![]);
+    assert_eq!(calculator.get_output().clone(), "A ");
     calculator = create_calculator(DEFAULT_STACK_SIZE);
 
     calculator.run(".\" Hello, world!\"".to_string());
