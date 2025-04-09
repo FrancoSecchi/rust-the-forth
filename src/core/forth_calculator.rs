@@ -48,7 +48,7 @@ impl ForthCalculator {
     }
 
     /// Checks if a word definition in the token list is valid.
-    ///
+    /// 
     /// A valid word definition must:
     /// - Contain exactly one colon `:` and one semicolon `;`.
     /// - Have no other tokens that partially include `:` or `;`.
