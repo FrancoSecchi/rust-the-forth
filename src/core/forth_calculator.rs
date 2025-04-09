@@ -47,6 +47,54 @@ impl ForthCalculator {
         &self.stack
     }
 
+    /// Checks if a word definition in the token list is valid.
+    ///
+    /// A valid word definition must:
+    /// - Contain exactly one colon `:` and one semicolon `;`.
+    /// - Have no other tokens that partially include `:` or `;`.
+    ///     
+    fn is_valid_word_definition(&mut self, tokens: &[String]) -> bool {
+        let total_semicolons = tokens.iter().filter(|token| token == &";").count();
+        let total_colons = tokens.iter().filter(|token| token == &":").count();
+
+        let all_colons_valid = tokens.iter().filter(|t| t.contains(':')).all(|t| t == ":");
+        let all_semicolons_valid = tokens.iter().filter(|t| t.contains(';')).all(|t| t == ";");
+
+        total_colons == 1 && total_semicolons == 1 && all_colons_valid && all_semicolons_valid
+    }
+
+    /// Validates that the provided tokens are syntactically and semantically correct.
+    ///
+    /// This function performs two checks:
+    /// 1. If there is a custom word definition (indicated by a colon `:`),
+    ///    it must be valid as defined by `is_valid_word_definition`.
+    /// 2. All tokens must either be:
+    ///    - A valid integer
+    ///    - A known predefined operation
+    ///    - A user-defined word
+    ///     
+    fn are_valid_tokens(&mut self, tokens: &Vec<String>) -> Result<(), OperationError> {
+        let total_colons = tokens.iter().filter(|token| token == &":").count();
+        if total_colons != 0 && !self.is_valid_word_definition(tokens) {
+            return Err(OperationError::WordNotFound);
+        }
+        for token in tokens {
+            if let Err(_error) = token.parse::<i16>() {
+                let operation_type =
+                    OperationType::from_token(token).ok_or(OperationError::WordNotFound)?;
+
+                if !self.operations.contains_key(&operation_type)
+                    && !self.output_operations.contains_key(&operation_type)
+                //&& !self.words.contains_key(&operation_type)
+                {
+                    return Err(OperationError::WordNotFound);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     /// Processes a given file input string by tokenizing it and executing the corresponding operations.
     ///
     /// # Arguments
@@ -56,17 +104,24 @@ impl ForthCalculator {
     /// The function iterates over the tokens, executing either number insertion or operations.
     /// If an error occurs, it is logged and execution stops.
     pub fn run(&mut self, content: String) {
-        let mut output = String::new();
+        let mut output: String = String::new();
         let input_tokens = file_manager::tokenize(&content);
-        for token in input_tokens {
-            let result = match token.parse::<i16>() {
-                Ok(number) => self.push_number(number),
-                Err(_) => self.execute_operation(&token, &mut output),
-            };
+        match self.are_valid_tokens(&input_tokens) {
+            Ok(()) => {
+                for token in input_tokens {
+                    let result = match token.parse::<i16>() {
+                        Ok(number) => self.push_number(number),
+                        Err(_) => self.execute_operation(&token, &mut output),
+                    };
 
-            if let Err(e) = result {
+                    if let Err(e) = result {
+                        self.add_string_output_error(&mut output, e);
+                        break;
+                    }
+                }
+            }
+            Err(e) => {
                 self.add_string_output_error(&mut output, e);
-                break;
             }
         }
 
