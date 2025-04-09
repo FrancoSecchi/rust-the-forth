@@ -82,19 +82,8 @@ pub fn tokenize(input: &str) -> Vec<String> {
             continue;
         }
         if chars[i] == '.' {
-            if i + 2 < chars.len() && chars[i..i + 3] == ['.', '"', ' '] {
-                let mut literal = String::new();
-                literal.push(' ');
-                i += 3;
-
-                while i < chars.len() && chars[i] != '"' {
-                    literal.push(chars[i]);
-                    i += 1;
-                }
-                if i < chars.len() && chars[i] == '"' {
-                    i += 1;
-                }
-                tokens.push(format!(".\"{}\"", literal));
+            if is_print_text_format_valid(&chars, &mut i) {
+                process_print_text_operation(&chars, &mut i, &mut tokens);
                 continue;
             } else {
                 tokens.push(".".to_string());
@@ -110,4 +99,55 @@ pub fn tokenize(input: &str) -> Vec<String> {
         tokens.push(chars[start..i].iter().collect());
     }
     tokens
+}
+
+/// Checks if the current character position matches the expected start of a print text operation
+/// in the format: ."<space>
+/// # Arguments
+/// * `chars` - A reference to the vector of characters being parsed
+/// * `i` - A mutable reference to the current index in the character vector
+/// # Example
+/// ```text
+/// let chars: Vec<char> = ".\" Hello\"".chars().collect();
+/// let mut index = 0;
+/// assert!(is_print_text_format_valid(&chars, &mut index));
+/// ```
+fn is_print_text_format_valid(chars: &[char], i: &mut usize) -> bool {
+    *i + 2 < chars.len() && chars[*i..*i + 3] == ['.', '"', ' ']
+}
+
+/// Processes a print text operation starting at the current index and appends the corresponding
+/// token to the tokens vector.
+///
+/// This function assumes that the `.\" ` format has already been validated.
+/// It will collect characters until the closing `"` is found and build a formatted string token.
+///
+/// # Arguments
+/// * `chars` - A reference to the vector of characters being parsed
+/// * `i` - A mutable reference to the current index in the character vector
+/// * `tokens` - A mutable reference to the vector where the resulting token will be stored
+///
+/// # Example
+/// ```text
+/// let chars: Vec<char> = ".\" Hello world\"".chars().collect();
+/// let mut index = 0;
+/// let mut tokens = vec![];
+/// if is_print_text_format_valid(&chars, &mut index) {
+///     process_print_text_operation(&chars, &mut index, &mut tokens);
+/// }
+/// assert_eq!(tokens, vec![".\" Hello world\""]);
+/// ```
+fn process_print_text_operation(chars: &[char], i: &mut usize, tokens: &mut Vec<String>) {
+    let mut literal = String::new();
+    literal.push(' ');
+    *i += 3;
+
+    while *i < chars.len() && chars[*i] != '"' {
+        literal.push(chars[*i]);
+        *i += 1;
+    }
+    if *i < chars.len() && chars[*i] == '"' {
+        *i += 1;
+    }
+    tokens.push(format!(".\"{}\"", literal));
 }
