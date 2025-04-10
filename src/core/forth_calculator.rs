@@ -148,11 +148,11 @@ impl ForthCalculator {
 
         let mut tokens_iter = tokens.iter_mut().peekable();
         let mut i: usize = 0;
-
         let mut vec_drain: Vec<(usize, usize)> = vec![];
+
         while let Some(token) = tokens_iter.next() {
             if token == ":" {
-                let start: usize = i;
+                let start = i;
                 i += 1;
 
                 if let Some(word_name) = tokens_iter.next() {
@@ -164,63 +164,48 @@ impl ForthCalculator {
                         if def_token == ";" {
                             break;
                         } else {
-                            if let Some(_) = OperationType::from_token(def_token) {
-                                if let Some(word_versions) =
-                                    self.word_registry.get_word_versions(&def_token)
-                                {
-                                    if let Some(last_index) = word_versions.last() {
-                                        def_token.push_str(&format!("_{}", last_index));
-                                    }
-                                } else {
-                                    def_token.push_str(&format!("_{}", CANONIC_SUBFIX));
-                                }
-                            } else {
-                                if let Some(word_versions) =
-                                    self.word_registry.get_word_versions(&def_token)
-                                {
-                                    if let Some(last_index) = word_versions.last() {
-                                        def_token.push_str(&format!("_{}", last_index));
-                                    }
-                                }
-                            }
+                            self.append_word_version_suffix(def_token);
                             body.push(def_token.to_string());
                         }
                     }
 
                     self.word_registry.define_word(word_name.to_string(), body);
+
                     if self.word_registry.contains_key(&word_name) {
                         word_name.push_str(&format!("_{}", self.word_registry.get_version()));
                     }
-                    let end = i - 1;
-                    
 
+                    let end = i - 1;
                     vec_drain.push((start, end));
                 }
             } else {
-                if let Some(_) = OperationType::from_token(token) {
-                    if let Some(word_versions) = self.word_registry.get_word_versions(&token) {
-                        if let Some(last_index) = word_versions.last() {
-                            token.push_str(&format!("_{}", last_index));
-                        }
-                    } else {
-                        token.push_str(&format!("_{}", CANONIC_SUBFIX));
-                    }
-                } else {
-                    if let Some(word_versions) = self.word_registry.get_word_versions(&token) {
-                        if let Some(last_index) = word_versions.last() {
-                            token.push_str(&format!("_{}", last_index));
-                        }
-                    }
-                }
+                self.append_word_version_suffix(token);
                 i += 1;
             }
         }
+
         vec_drain.sort_by(|a, b| b.0.cmp(&a.0));
         for (start, end) in vec_drain {
             tokens.drain(start..=end);
         }
 
         Ok(())
+    }
+
+    fn append_word_version_suffix(&self, token: &mut String) {
+        if OperationType::from_token(token).is_some() {
+            if let Some(word_versions) = self.word_registry.get_word_versions(token) {
+                if let Some(last_index) = word_versions.last() {
+                    token.push_str(&format!("_{}", last_index));
+                }
+            } else {
+                token.push_str(&format!("_{}", CANONIC_SUBFIX));
+            }
+        } else if let Some(word_versions) = self.word_registry.get_word_versions(token) {
+            if let Some(last_index) = word_versions.last() {
+                token.push_str(&format!("_{}", last_index));
+            }
+        }
     }
 
     /// Processes a given file input string by tokenizing it and executing the corresponding operations.
@@ -273,9 +258,7 @@ impl ForthCalculator {
 
     // Process the validated tokens
     fn process_tokens(&mut self, tokens: &[String], output: &mut String) {
-        println!("Input {:#?}", tokens);
         for token in tokens {
-            //println!("token actual: {token}");
             let result = self.process_single_token(token, output);
 
             if let Err(_) = result {
@@ -306,7 +289,6 @@ impl ForthCalculator {
         output: &mut String,
     ) -> Result<(), OperationError> {
         let token_parts: Vec<&str> = token.split('_').collect();
-        //println!("stack actual: {:#?} - token-parts: {:#?}", self.get_stack(), token_parts);
         if token_parts.len() > 1 {
             if token_parts[1] == CANONIC_SUBFIX {
                 let original_token = token_parts[0];
@@ -339,8 +321,8 @@ impl ForthCalculator {
             if let Err(error) = self.execute_operation(token, output) {
                 self.add_string_output_error(output, error);
             }
-        } else {            
-            if let Ok(wi) = index_word_token {                
+        } else {
+            if let Ok(wi) = index_word_token {
                 if let Err(error) = self.execute_word_by_index(wi, word_token, output) {
                     self.add_string_output_error(output, error);
                 }
@@ -351,10 +333,10 @@ impl ForthCalculator {
     fn execute_word_by_index(
         &mut self,
         word_index: usize,
-        token: &str,
+        _token: &str,
         output: &mut String,
     ) -> Result<(), OperationError> {
-        let tokens_to_process = self.get_word_tokens(word_index);        
+        let tokens_to_process = self.get_word_tokens(word_index);
         self.process_word_tokens(&tokens_to_process, output)
     }
 
@@ -373,14 +355,13 @@ impl ForthCalculator {
         tokens: &[String],
         output: &mut String,
     ) -> Result<(), OperationError> {
-        for word_token in tokens {            
+        for word_token in tokens {
             if let Ok(number) = word_token.parse::<i16>() {
                 self.push_number(number)?;
-            } else {                
-                
+            } else {
                 let word_token_parts: Vec<&str> = word_token.split("_").collect();
                 let word_token_name = word_token_parts[0];
-                if word_token_parts[1] != CANONIC_SUBFIX {                    
+                if word_token_parts[1] != CANONIC_SUBFIX {
                     let index_word_token = word_token_parts[1].parse::<usize>();
                     if !self.word_registry.contains_key(word_token_name) {
                         return Err(OperationError::WordNotFound);
