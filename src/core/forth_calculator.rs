@@ -1,10 +1,14 @@
 use super::operation::OperationOutput;
 use super::operation::OperationType;
 use crate::core::error::OperationError;
+use crate::core::operation::word_definition::word;
+use crate::core::operation::word_definition::WordRegistry;
 use crate::core::operation::Operation;
 use crate::core::operation::{get_all_standar_operations, get_output_operations};
 use crate::utils::file_manager;
 use std::collections::HashMap;
+
+const CANONIC_SUBFIX: &str = "c";
 
 /// A stack-based calculator implementing a subset of the Forth language.
 /// This calculator supports arithmetic operations, boolean operations,
@@ -18,6 +22,8 @@ pub struct ForthCalculator {
     operations: HashMap<OperationType, Box<dyn Operation>>,
     /// Mapping of output-related operations (e.g., printing, emitting characters).
     output_operations: HashMap<OperationType, Box<dyn OperationOutput>>,
+
+    word_registry: WordRegistry,
 
     output: String,
 }
@@ -34,7 +40,8 @@ impl ForthCalculator {
             stack: Vec::new(),
             operations: get_all_standar_operations(),
             output_operations: get_output_operations(),
-            output: String::new(),            
+            output: String::new(),
+            word_registry: WordRegistry::new(),
         }
     }
 
@@ -74,38 +81,75 @@ impl ForthCalculator {
     ///    - A user-defined word
     ///     
     fn are_valid_tokens(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
-        if let Err(err) = self.extract_words(tokens) {
-            return Err(err);
-        }
-
-        for token in tokens {
-            if let Err(_error) = token.parse::<i16>() {
-                let operation_type =
-                    OperationType::from_token(token).ok_or(OperationError::WordNotFound)?;
-
-                if !self.operations.contains_key(&operation_type)
-                    && !self.output_operations.contains_key(&operation_type)
-                    //&& self.word_registry.get_word(&token).is_none()
-                {
+        self.extract_words(tokens)?;
+        for token in tokens {            
+            if let Err(_error) = token.parse::<i16>() {                
+                let parts: Vec<&str> = token.split('_').collect();               
+                let word_exists = if parts.len() == 2 {                    
+                    let name = parts[0];                
+                    if parts[1] != CANONIC_SUBFIX {
+                        if let Ok(index) = parts[1].parse::<usize>() {
+                            self.word_registry.contains_key(name) && self.word_registry.has_version(name, index)
+                        } else {
+                            false
+                        }
+                    } else {                        
+                        true
+                    }
+                } else {
+                    self.word_registry.contains_key(token)
+                };
+                
+                if !word_exists {
                     return Err(OperationError::WordNotFound);
-                }
+                }                                
             }
         }
 
         Ok(())
     }
 
-    fn extract_words(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
+    /// Extracts and registers custom word definitions (also known as `words`) from the provided token list
+    /// into the `WordRegistry`. It also removes the word definitions from the original token list
+    /// to ensure only executable tokens remain.
+    ///
+    /// The function looks for definition patterns in the form:
+    /// `: word_name body_tokens ;`, where:
+    /// - `:` marks the beginning of a word definition.
+    /// - `word_name` is the name of the custom word.
+    /// - `body_tokens` are the tokens that form the implementation of the word.
+    /// - `;` ends the definition.
+    ///
+    /// # Parameters
+    ///
+    /// * `tokens` - A mutable reference to a `Vec<String>` containing the tokenized input source.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(())` if all definitions were valid and registered successfully.
+    /// * `Err(OperationError::InvalidWordFormat)` if any definition is incorrectly formatted.
+    ///
+    /// # Example
+    ///
+    /// ```text
+    /// let mut tokens = vec![
+    ///     "1".to_string(), ":", "foo".to_string(), "2".to_string(), ";".to_string(), "3".to_string(), "foo".to_string()
+    /// ];
+    /// let mut calc = ForthCalculator::new();
+    /// calc.extract_words(&mut tokens)?;
+    /// assert_eq!(tokens, vec!["1", "3", "foo"]);
+    /// ```
+    ///
+    pub fn extract_words(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
         let total_colons = tokens.iter().filter(|token| token == &":").count();
         if total_colons != 0 && !self.is_valid_word_definition(tokens) {
             return Err(OperationError::InvalidWordFormat);
         }
 
-        let mut tokens_iter = tokens.into_iter().peekable();
+        let mut tokens_iter = tokens.iter_mut().peekable();
         let mut i: usize = 0;
 
         let mut vec_drain: Vec<(usize, usize)> = vec![];
-
         while let Some(token) = tokens_iter.next() {
             if token == ":" {
                 let start: usize = i;
@@ -123,17 +167,32 @@ impl ForthCalculator {
                             body.push(def_token.to_string());
                         }
                     }
+
+                    self.word_registry.define_word(word_name.to_string(), body);
+                    if self.word_registry.contains_key(&word_name) {
+                        word_name.push_str(&format!("_{}", self.word_registry.get_version()));
+                    }                    
                     let end = i - 1;
-                    vec_drain.push((start, end));                    
+
+                    vec_drain.push((start, end));
                 }
             } else {
+                if let Some(_) = OperationType::from_token(token) {
+                    if let Some(word_versions) = self.word_registry.get_word_versions(&token) {
+                        if let Some(last_index) = word_versions.last() {
+                            token.push_str(&format!("_{}", last_index));
+                        }
+                    } else {
+                        token.push_str(&format!("_{}",CANONIC_SUBFIX));
+                    }
+                }
                 i += 1;
             }
         }
         vec_drain.sort_by(|a, b| b.0.cmp(&a.0));
         for (start, end) in vec_drain {
             tokens.drain(start..=end);
-        }
+        }        
         Ok(())
     }
 
@@ -151,32 +210,17 @@ impl ForthCalculator {
 
         if let Err(error) = self.are_valid_tokens(&mut input_tokens) {
             self.add_string_output_error(&mut output, error);
-        } else {
+        }else {
+            self.process_tokens(&input_tokens, &mut output);
+            println!("validados pa");
         }
-
-        println!("{:#?}", input_tokens);
-        /* 
-        if let Err(error) = self.are_valid_tokens(&input_tokens)  {
-            self.add_string_output_error(&mut output, error);
-        } else {
-            for token in input_tokens {
-                let result = match token.parse::<i16>() {
-                    Ok(number) => self.push_number(number),
-                    Err(_) => self.execute_operation(&token, &mut output),
-                };
-
-                if let Err(e) = result {
-                    self.add_string_output_error(&mut output, e);
-                    break;
-                }
-            }
-        }
-
-        if let Err(_e) = file_manager::save_stack(&self.stack) {
-            self.add_string_output_error(&mut output, OperationError::FailWritingFile);
-        }
-
-        self.output = output; */
+         /* else {
+              self.process_tokens(&input_tokens, &mut output);
+          }
+          if let Err(_e) = file_manager::save_stack(&self.stack) {
+              self.add_string_output_error(&mut output, OperationError::FailWritingFile);
+          } */
+        self.output = output;
     }
 
     /// Appends an error message to the output string.
@@ -188,7 +232,7 @@ impl ForthCalculator {
     fn add_string_output_error(&mut self, output: &mut String, error: OperationError) {
         output.push_str(&format!("{}", error));
     }
-
+    /* 
     /// Pushes a number onto the stack.
     ///
     /// # Arguments
@@ -203,7 +247,7 @@ impl ForthCalculator {
         Ok(())
     }
 
-    /// Executes an operation based on the provided token.  
+    /// Executes an operation based on the provided token.
     ///
     /// # Arguments
     ///
@@ -224,10 +268,84 @@ impl ForthCalculator {
             return operation.apply(&mut self.stack, output, token);
         }
 
-        let operation = self
-            .output_operations
-            .get(&operation_type)
-            .ok_or(OperationError::WordNotFound)?;
-        operation.apply(&mut self.stack, output, token)
+        Err(OperationError::WordNotFound)
     }
+    // Process the validated tokens
+    fn process_tokens(&mut self, tokens: &[String], output: &mut String) {
+        println!("{:#?}", tokens);
+        for token in tokens {
+
+            let result = self.process_single_token(token, output);
+
+            if let Err(_) = result {
+
+                // Handle word lookup on error
+                self.handle_word_lookup(token, output);
+                break;
+            }
+        }
+    }
+
+    // Process a single token (number or operation)
+    fn process_single_token(&mut self, token: &str, output: &mut String) -> Result<(), OperationError> {
+        match token.parse::<i16>() {
+            Ok(number) => self.push_number(number),
+            Err(_) => self.execute_operation(token, output),
+        }
+    }
+
+    // Handle word lookup and execution when a token isn't a number or standard operation
+    fn handle_word_lookup(&mut self, token: &str, output: &mut String) {
+        // Get word index if available
+        let word_index = if let Some(idx) = self.word_registry.current_definition.get(token) {
+            Some(*idx)
+        } else {
+            self.add_string_output_error(output, OperationError::WordNotFound);
+            None
+        };
+        // If word index exists, execute the word
+        if let Some(wi) = word_index {
+            if let Err(error) = self.execute_word_by_index(wi, token, output) {
+                self.add_string_output_error(output, error);
+            }
+        }
+    }
+
+    // Execute a word using its index to avoid borrowing conflicts
+    fn execute_word_by_index(&mut self, word_index: usize, token: &str, output: &mut String) -> Result<(), OperationError> {
+        // Safely get all tokens from the word body without holding a reference to self
+        let tokens_to_process = self.get_word_tokens(word_index);
+
+        // Process each token in the word body
+        self.process_word_tokens(&tokens_to_process, output)
+    }
+
+    // Extract tokens from a word definition by index
+    fn get_word_tokens(&self, word_index: usize) -> Vec<String> {
+        self.word_registry.words[word_index]
+            .body
+            .iter()
+            .map(|s| s.to_string())
+            .collect()
+    }
+
+    // Process all tokens from a word body
+    fn process_word_tokens(&mut self, tokens: &[String], output: &mut String) -> Result<(), OperationError> {
+        for word_token in tokens {
+            if let Ok(number) = word_token.parse::<i16>() {
+                self.push_number(number)?;
+            } else {
+                // Handle operations
+                self.execute_operation(word_token, output)?;
+
+                // Check if this is a nested word call
+                if let Some(nested_idx) = self.word_registry.current_definition.get(word_token) {
+                    let nested_index = *nested_idx;
+                    self.execute_word_by_index(nested_index, word_token, output)?;
+                }
+            }
+        }
+
+        Ok(())
+    } */
 }
