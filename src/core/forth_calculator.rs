@@ -385,3 +385,199 @@ impl ForthCalculator {
         Ok(())
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    fn create_calculator() -> ForthCalculator {
+        ForthCalculator::new(100)
+    }
+
+    #[test]
+    fn test_extract_single_word() {
+        let mut calc = create_calculator();
+        let mut tokens = vec![
+            ":".to_string(),
+            "doble".to_string(),
+            "2".to_string(),
+            "*".to_string(),
+            ";".to_string(),
+        ];
+
+        let result = calc.extract_words(&mut tokens);
+        assert!(result.is_ok());
+        assert_eq!(tokens.len(), 0);
+        assert!(calc.word_registry.contains_key("doble"));
+    }
+
+    #[test]
+    fn test_extract_multiple_words() {
+        let mut calc = create_calculator();
+        let mut tokens = vec![
+            ":".to_string(),
+            "cuadrado".to_string(),
+            "dup".to_string(),
+            "*".to_string(),
+            ";".to_string(),
+            ":".to_string(),
+            "cuatro".to_string(),
+            "2".to_string(),
+            "2".to_string(),
+            "+".to_string(),
+            ";".to_string(),
+        ];
+
+        let result = calc.extract_words(&mut tokens);
+        assert!(result.is_ok());
+        assert!(calc.word_registry.contains_key("cuadrado"));
+        assert!(calc.word_registry.contains_key("cuatro"));
+        assert_eq!(tokens.len(), 0);
+    }
+
+    #[test]
+    fn test_invalid_word_definition_missing_semicolon() {
+        let mut calc = create_calculator();
+        let mut tokens = vec![
+            ":".to_string(),
+            "doble".to_string(),
+            "2".to_string(),
+            "*".to_string(),
+            // falta el ";"
+        ];
+
+        let result = calc.extract_words(&mut tokens);
+        assert_eq!(result, Err(OperationError::InvalidWordFormat));
+    }
+
+    #[test]
+    fn test_invalid_word_name_is_number() {
+        let mut calc = create_calculator();
+        let mut tokens = vec![
+            ":".to_string(),
+            "123".to_string(), // inválido como nombre
+            "1".to_string(),
+            "+".to_string(),
+            ";".to_string(),
+        ];
+
+        let result = calc.extract_words(&mut tokens);
+        assert_eq!(result, Err(OperationError::InvalidWord));
+    }
+
+    #[test]
+    fn test_preserves_other_tokens() {
+        let mut calc = create_calculator();
+        let mut tokens = vec![
+            "3".to_string(),
+            "4".to_string(),
+            ":".to_string(),
+            "sumar".to_string(),
+            "+".to_string(),
+            ";".to_string(),
+            "sumar".to_string(),
+        ];
+
+        let result = calc.extract_words(&mut tokens);
+        assert!(result.is_ok());
+
+        // Solo debería quedar el código de ejecución
+        assert_eq!(tokens, vec!["3", "4", "sumar_0"]);
+    }
+
+    #[test]
+    fn test_version_suffix_added_properly() {
+        let mut calc = create_calculator();
+        let mut tokens = vec![
+            ":".to_string(),
+            "x".to_string(),
+            "1".to_string(),
+            "+".to_string(),
+            ";".to_string(),
+            ":".to_string(),
+            "x".to_string(),
+            "2".to_string(),
+            "+".to_string(),
+            ";".to_string(),
+        ];
+
+        let result = calc.extract_words(&mut tokens);
+        assert!(result.is_ok());
+        assert!(calc.word_registry.contains_key("x"));
+
+        let versions = calc.word_registry.get_word_versions("x").unwrap();
+        assert_eq!(versions.len(), 2);
+        assert_eq!(tokens.len(), 0);
+    }
+
+    #[test]
+fn test_defined_word_gets_appended_with_version_suffix() {
+    let mut calc = create_calculator();
+    let mut tokens = vec![
+        ":".to_string(),
+        "doble".to_string(),
+        "2".to_string(),
+        "*".to_string(),
+        ";".to_string(),
+        "doble".to_string(), // se espera que quede "doble_0"
+    ];
+
+    let result = calc.extract_words(&mut tokens);
+    assert!(result.is_ok());
+    assert_eq!(tokens, vec!["doble_0"]);
+}
+
+#[test]
+fn test_multiple_versions_get_correct_suffixes() {
+    let mut calc = create_calculator();
+    let mut tokens = vec![
+        ":".to_string(),
+        "x".to_string(),
+        "1".to_string(),
+        "+".to_string(),
+        ";".to_string(),
+        ":".to_string(),
+        "x".to_string(),
+        "2".to_string(),
+        "+".to_string(),
+        ";".to_string(),
+        "x".to_string(), // se espera que quede "x_1"
+    ];
+
+    let result = calc.extract_words(&mut tokens);
+    assert!(result.is_ok());
+    assert_eq!(tokens, vec!["x_1"]);
+}
+
+#[test]
+fn test_defined_words_in_definition_are_versioned() {
+    let mut calc = create_calculator();
+
+    // Definir una palabra base
+    let mut base_def = vec![
+        ":".to_string(),
+        "uno".to_string(),
+        "1".to_string(),
+        ";".to_string(),
+    ];
+    assert!(calc.extract_words(&mut base_def).is_ok());
+
+    // Usar esa palabra dentro de otra definición
+    let mut composed_def = vec![
+        ":".to_string(),
+        "duplicar_uno".to_string(),
+        "uno".to_string(), // se espera que sea transformado a uno_0 internamente
+        "uno".to_string(),
+        "+".to_string(),
+        ";".to_string(),
+        "duplicar_uno".to_string(), // se espera que quede como duplicar_uno_1
+    ];
+    assert!(calc.extract_words(&mut composed_def).is_ok());
+
+    // Verificamos el resultado
+    assert_eq!(composed_def, vec!["duplicar_uno_1"]);
+}
+
+
+}
