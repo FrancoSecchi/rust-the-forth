@@ -34,7 +34,7 @@ impl ForthCalculator {
             stack: Vec::new(),
             operations: get_all_standar_operations(),
             output_operations: get_output_operations(),
-            output: String::new(),
+            output: String::new(),            
         }
     }
 
@@ -48,7 +48,7 @@ impl ForthCalculator {
     }
 
     /// Checks if a word definition in the token list is valid.
-    /// 
+    ///
     /// A valid word definition must:
     /// - Contain exactly one colon `:` and one semicolon `;`.
     /// - Have no other tokens that partially include `:` or `;`.
@@ -60,7 +60,7 @@ impl ForthCalculator {
         let all_colons_valid = tokens.iter().filter(|t| t.contains(':')).all(|t| t == ":");
         let all_semicolons_valid = tokens.iter().filter(|t| t.contains(';')).all(|t| t == ";");
 
-        total_colons == 1 && total_semicolons == 1 && all_colons_valid && all_semicolons_valid
+        total_colons == total_semicolons && all_colons_valid && all_semicolons_valid
     }
 
     /// Validates that the provided tokens are syntactically and semantically correct.
@@ -73,11 +73,11 @@ impl ForthCalculator {
     ///    - A known predefined operation
     ///    - A user-defined word
     ///     
-    fn are_valid_tokens(&mut self, tokens: &Vec<String>) -> Result<(), OperationError> {
-        let total_colons = tokens.iter().filter(|token| token == &":").count();
-        if total_colons != 0 && !self.is_valid_word_definition(tokens) {
-            return Err(OperationError::WordNotFound);
+    fn are_valid_tokens(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
+        if let Err(err) = self.extract_words(tokens) {
+            return Err(err);
         }
+
         for token in tokens {
             if let Err(_error) = token.parse::<i16>() {
                 let operation_type =
@@ -85,13 +85,55 @@ impl ForthCalculator {
 
                 if !self.operations.contains_key(&operation_type)
                     && !self.output_operations.contains_key(&operation_type)
-                //&& !self.words.contains_key(&operation_type)
+                    //&& self.word_registry.get_word(&token).is_none()
                 {
                     return Err(OperationError::WordNotFound);
                 }
             }
         }
 
+        Ok(())
+    }
+
+    fn extract_words(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
+        let total_colons = tokens.iter().filter(|token| token == &":").count();
+        if total_colons != 0 && !self.is_valid_word_definition(tokens) {
+            return Err(OperationError::InvalidWordFormat);
+        }
+
+        let mut tokens_iter = tokens.into_iter().peekable();
+        let mut i: usize = 0;
+
+        let mut vec_drain: Vec<(usize, usize)> = vec![];
+
+        while let Some(token) = tokens_iter.next() {
+            if token == ":" {
+                let start: usize = i;
+                i += 1;
+
+                if let Some(word_name) = tokens_iter.next() {
+                    i += 1;
+                    let mut body = vec![];
+
+                    while let Some(def_token) = tokens_iter.next() {
+                        i += 1;
+                        if def_token == ";" {
+                            break;
+                        } else {
+                            body.push(def_token.to_string());
+                        }
+                    }
+                    let end = i - 1;
+                    vec_drain.push((start, end));                    
+                }
+            } else {
+                i += 1;
+            }
+        }
+        vec_drain.sort_by(|a, b| b.0.cmp(&a.0));
+        for (start, end) in vec_drain {
+            tokens.drain(start..=end);
+        }
         Ok(())
     }
 
@@ -105,23 +147,28 @@ impl ForthCalculator {
     /// If an error occurs, it is logged and execution stops.
     pub fn run(&mut self, content: String) {
         let mut output: String = String::new();
-        let input_tokens = file_manager::tokenize(&content);
-        match self.are_valid_tokens(&input_tokens) {
-            Ok(()) => {
-                for token in input_tokens {
-                    let result = match token.parse::<i16>() {
-                        Ok(number) => self.push_number(number),
-                        Err(_) => self.execute_operation(&token, &mut output),
-                    };
+        let mut input_tokens = file_manager::tokenize(&content);
 
-                    if let Err(e) = result {
-                        self.add_string_output_error(&mut output, e);
-                        break;
-                    }
+        if let Err(error) = self.are_valid_tokens(&mut input_tokens) {
+            self.add_string_output_error(&mut output, error);
+        } else {
+        }
+
+        println!("{:#?}", input_tokens);
+        /* 
+        if let Err(error) = self.are_valid_tokens(&input_tokens)  {
+            self.add_string_output_error(&mut output, error);
+        } else {
+            for token in input_tokens {
+                let result = match token.parse::<i16>() {
+                    Ok(number) => self.push_number(number),
+                    Err(_) => self.execute_operation(&token, &mut output),
+                };
+
+                if let Err(e) = result {
+                    self.add_string_output_error(&mut output, e);
+                    break;
                 }
-            }
-            Err(e) => {
-                self.add_string_output_error(&mut output, e);
             }
         }
 
@@ -129,7 +176,7 @@ impl ForthCalculator {
             self.add_string_output_error(&mut output, OperationError::FailWritingFile);
         }
 
-        self.output = output;
+        self.output = output; */
     }
 
     /// Appends an error message to the output string.
