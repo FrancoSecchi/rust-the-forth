@@ -157,6 +157,10 @@ impl ForthCalculator {
 
                 if let Some(word_name) = tokens_iter.next() {
                     i += 1;
+
+                    if let Ok(_) = word_name.parse::<i16>() {
+                        return Err(OperationError::InvalidWord);
+                    }
                     let mut body = vec![];
 
                     while let Some(def_token) = tokens_iter.next() {
