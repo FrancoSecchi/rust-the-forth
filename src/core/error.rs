@@ -21,6 +21,8 @@ pub enum OperationError {
     InvalidCharacter,
     /// The provided word was not recognized as a valid operation.
     WordNotFound,
+
+    InvalidWordFormat,
 }
 
 /// Represents possible errors that can occur during the validation of command-line arguments.
@@ -85,6 +87,9 @@ impl fmt::Display for OperationError {
             }
             OperationError::WordNotFound => {
                 writeln!(f, "?")
+            }
+            OperationError::InvalidWordFormat => {
+                writeln!(f, "? invalid word format")
             }
         }
     }
