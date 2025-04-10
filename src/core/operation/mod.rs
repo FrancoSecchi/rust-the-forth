@@ -23,6 +23,8 @@ pub mod output;
 /// all of which implement the `Operation` trait.
 pub mod stack_manipulation;
 
+pub mod word_definition;
+
 /// Defines a trait for stack-based operations.
 ///
 /// Implementors of this trait must define the `apply` method, which takes
