@@ -407,8 +407,24 @@ impl ForthCalculator {
                     i = then_pos + 1;
                 }
                 token => {
-                    self.process_single_token(token, output)?;
-                    i += 1;
+                    if let Ok(number) = token.parse::<i16>() {
+                        self.push_number(number)?;
+                    } else {
+                        let word_token_parts: Vec<&str> = token.split("_").collect();
+                        let word_token_name = word_token_parts[0];
+                        if word_token_parts[1] != CANONIC_SUBFIX {
+                            let index_word_token = word_token_parts[1].parse::<usize>();
+                            if !self.word_registry.contains_key(word_token_name) {
+                                return Err(OperationError::WordNotFound);
+                            }                            
+                            if let Ok(wi) = index_word_token {
+                                self.execute_word_by_index(wi, word_token_name, output)?;
+                            }
+                        } else {
+                            self.execute_operation(token, output)?;
+                        }
+                    }
+                    i += 1;                
                 }
             }
         }
