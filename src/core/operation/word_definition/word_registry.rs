@@ -53,7 +53,7 @@ impl WordRegistry {
     }
 
     pub fn get_version(&self) -> usize {
-        if self.words.len() == 0 {
+        if self.words.is_empty() {
             0
         } else {
             self.words.len() - 1
