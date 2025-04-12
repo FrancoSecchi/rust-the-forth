@@ -6,9 +6,15 @@ use crate::core::operation::Operation;
 use crate::core::operation::{get_all_standar_operations, get_output_operations};
 use crate::utils::file_manager;
 use std::collections::HashMap;
-use std::usize;
 
 const CANONIC_SUBFIX: &str = "c";
+
+type BranchResult<'a> = Result<(
+    usize,                          // then index
+    &'a [String],                   // 'if' branch tokens
+    Option<&'a [String]>,           // else branch tokens (optional)
+), OperationError>; 
+
 
 /// A stack-based calculator implementing a subset of the Forth language.
 /// This calculator supports arithmetic operations, boolean operations,
@@ -320,7 +326,7 @@ impl ForthCalculator {
     /// # Parameters
     /// - `token`: A string token that may refer to a user-defined word or an operation.
     /// - `output`: A mutable reference to a string where error messages or results are written.
-
+    /// 
     fn handle_word_lookup(&mut self, token: &str, output: &mut String) {
         let token_parts: Vec<&str> = token.split('_').collect();
         let word_token = token_parts[0];
@@ -365,7 +371,7 @@ impl ForthCalculator {
     ///
     /// # Returns
     /// Returns a vector of strings representing the tokens of the word body.
-
+    /// 
     fn get_word_tokens(&self, word_index: usize) -> Vec<String> {
         self.word_registry.words[word_index]
             .body
@@ -381,7 +387,6 @@ impl ForthCalculator {
     /// - `tokens`: A slice of strings representing the body of a word to be processed.
     /// - `output`: A mutable reference to a string where error messages or results are written.
     ///    
-
     fn process_word_tokens(
         &mut self,
         tokens: &[String],
@@ -427,14 +432,7 @@ impl ForthCalculator {
         &mut self,
         tokens: &'_slice_tokens [String],
         start: usize,
-    ) -> Result<
-        (
-            usize,
-            &'_slice_tokens [String],
-            Option<&'_slice_tokens [String]>,
-        ),
-        OperationError,
-    > {
+    ) -> BranchResult<'_slice_tokens> {
         let mut branch_nesting = 0;
         let mut else_index: Option<usize> = None;
         let mut then_index: Option<usize> = None;
