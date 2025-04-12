@@ -22,3 +22,11 @@ pub mod forth_calculator;
 /// It also provides a utility function `get_operations()` to retrieve all supported operations
 /// in a structured map for execution.
 pub mod operation;
+
+/// Module containing type aliases used for control structure handling.
+/// 
+/// This file defines type aliases that are used to manage the results of operations
+/// related to conditional blocks, such as `if` and `else`, in the processed code. These type aliases
+/// simplify the handling of results and errors in a clear and consistent manner.
+pub mod types;
+
