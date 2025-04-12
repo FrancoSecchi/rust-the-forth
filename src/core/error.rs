@@ -1,7 +1,7 @@
 use std::fmt;
 
 /// Represents possible errors that can occur during operation execution.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum OperationError {
     /// The stack does not contain enough elements to perform the operation.
     StackUnderflow,
