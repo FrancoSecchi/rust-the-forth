@@ -23,6 +23,8 @@ pub enum OperationError {
     WordNotFound,
 
     InvalidWordFormat,
+
+    InvalidIfFormat,
 }
 
 /// Represents possible errors that can occur during the validation of command-line arguments.
@@ -90,6 +92,9 @@ impl fmt::Display for OperationError {
             }
             OperationError::InvalidWordFormat => {
                 writeln!(f, "? invalid word format")
+            }
+            OperationError::InvalidIfFormat => {
+                writeln!(f, "if - invalid if format")
             }
         }
     }
