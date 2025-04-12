@@ -489,25 +489,24 @@ impl ForthCalculator {
     }
 
     /// Retrieves slices of tokens representing the `if` and `else` branches of a conditional statement.
-    /// 
+    ///
     /// This function takes a list of tokens, and based on the provided starting position and indices of the
     /// `then` and `else` branches, it returns slices corresponding to the `if` and `else` branches of a conditional.
     ///
     /// # Parameters
-    /// 
+    ///
     /// - `tokens`: A slice of strings representing the tokens of the entire program or script.
     /// - `start`: The index of the token where the conditional expression starts.
     /// - `then_index`: The index of the token corresponding to the `then` keyword.
     /// - `else_index`: An optional index of the token corresponding to the `else` keyword. If `None`, the conditional has no `else` branch.
     ///
     /// # Returns
-    /// 
+    ///
     /// This function returns a `Result`:
     /// - `Ok`: A tuple containing two slices:
     ///   - A slice representing the tokens in the `if` branch .
     ///   - An optional slice representing the tokens in the `else` branch.
     /// - `Err`: An `OperationError` if there was an issue extracting the slices (such as invalid indices).
-
     fn get_branch_slices<'_slice_tokens>(
         &self,
         tokens: &'_slice_tokens [String],
