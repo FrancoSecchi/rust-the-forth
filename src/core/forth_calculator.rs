@@ -9,12 +9,14 @@ use std::collections::HashMap;
 
 const CANONIC_SUBFIX: &str = "c";
 
-type BranchResult<'a> = Result<(
-    usize,                          // then index
-    &'a [String],                   // 'if' branch tokens
-    Option<&'a [String]>,           // else branch tokens (optional)
-), OperationError>; 
-
+type BranchResult<'a> = Result<
+    (
+        usize,                // then index
+        &'a [String],         // 'if' branch tokens
+        Option<&'a [String]>, // else branch tokens (optional)
+    ),
+    OperationError,
+>;
 
 /// A stack-based calculator implementing a subset of the Forth language.
 /// This calculator supports arithmetic operations, boolean operations,
@@ -326,7 +328,7 @@ impl ForthCalculator {
     /// # Parameters
     /// - `token`: A string token that may refer to a user-defined word or an operation.
     /// - `output`: A mutable reference to a string where error messages or results are written.
-    /// 
+    ///
     fn handle_word_lookup(&mut self, token: &str, output: &mut String) {
         let token_parts: Vec<&str> = token.split('_').collect();
         let word_token = token_parts[0];
@@ -371,7 +373,7 @@ impl ForthCalculator {
     ///
     /// # Returns
     /// Returns a vector of strings representing the tokens of the word body.
-    /// 
+    ///
     fn get_word_tokens(&self, word_index: usize) -> Vec<String> {
         self.word_registry.words[word_index]
             .body
@@ -416,7 +418,7 @@ impl ForthCalculator {
                             let index_word_token = word_token_parts[1].parse::<usize>();
                             if !self.word_registry.contains_key(word_token_name) {
                                 return Err(OperationError::WordNotFound);
-                            }                            
+                            }
                             if let Ok(wi) = index_word_token {
                                 self.execute_word_by_index(wi, word_token_name, output)?;
                             }
@@ -424,7 +426,7 @@ impl ForthCalculator {
                             self.execute_operation(token, output)?;
                         }
                     }
-                    i += 1;                
+                    i += 1;
                 }
             }
         }

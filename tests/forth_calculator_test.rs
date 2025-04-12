@@ -363,7 +363,7 @@ fn test_nested_if() {
       0 -1 f
       0 0 f
       ";
-    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);    
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
     let expected = vec![1, 2, 3]; // Stack after different calls of `f`
     assert_eq!(result, expected);
 }
@@ -384,7 +384,7 @@ fn test_nested_if_else() {
       ";
     let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
     let expected = vec![2, 3, 4]; // Stack after different calls of `f`
-    assert_eq!(result, expected);    
+    assert_eq!(result, expected);
 }
 
 #[test]
@@ -393,4 +393,3 @@ fn test_if_non_canonical() {
     let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
     assert_eq!(result, vec![10]);
 }
-
