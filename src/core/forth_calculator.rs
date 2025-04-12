@@ -81,6 +81,7 @@ impl ForthCalculator {
     ///     
     fn are_valid_tokens(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
         self.extract_words(tokens)?;
+        //println!("{:#?}", tokens);
         for token in tokens {
             if let Err(_error) = token.parse::<i16>() {
                 let parts: Vec<&str> = token.split('_').collect();
@@ -158,17 +159,19 @@ impl ForthCalculator {
                     let mut body = vec![];
 
                     for def_token in tokens_iter.by_ref() {
+                        let mut def_token = def_token.to_lowercase();
                         if def_token == ";" {
                             break;
-                        } else {
-                            self.append_word_version_suffix(def_token);
+                        } else {        
+                            //println!("antes {def_token}");                
+                            self.append_word_version_suffix(&mut def_token);
                             body.push(def_token.to_string());
                         }
-                    }
-
-                    self.word_registry.define_word(word_name.to_string(), body);
+                    }   
+                    
+                    self.word_registry.define_word(word_name.to_lowercase().to_string(), body);                    
                 }
-            } else {
+            } else {                
                 self.append_word_version_suffix(&mut token);
                 transformed_tokens.push(token);
             }
@@ -178,18 +181,18 @@ impl ForthCalculator {
         Ok(())
     }
 
-    fn append_word_version_suffix(&self, token: &mut String) {
-        if OperationType::from_token(token).is_some() {
+    fn append_word_version_suffix(&self, token: &mut String) {        
+        if let Some(word_versions) = self.word_registry.get_word_versions(token) {
+            if let Some(last_index) = word_versions.last() {
+                token.push_str(&format!("_{}", last_index));
+            }
+        } else if OperationType::from_token(token).is_some() {
             if let Some(word_versions) = self.word_registry.get_word_versions(token) {
                 if let Some(last_index) = word_versions.last() {
                     token.push_str(&format!("_{}", last_index));
                 }
             } else {
                 token.push_str(&format!("_{}", CANONIC_SUBFIX));
-            }
-        } else if let Some(word_versions) = self.word_registry.get_word_versions(token) {
-            if let Some(last_index) = word_versions.last() {
-                token.push_str(&format!("_{}", last_index));
             }
         }
     }
