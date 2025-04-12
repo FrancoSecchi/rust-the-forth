@@ -167,3 +167,120 @@ fn test_output_operations() {
     calculator.run(".\" Hello, world!\"".to_string());
     assert_eq!(calculator.get_stack().clone(), vec![]);
 }
+
+#[test]
+fn test_word_definitions() {
+    assert_eq!(
+        eval_forth_calculator(": dup-twice dup dup ; 1 dup-twice", DEFAULT_STACK_SIZE),
+        vec![1, 1, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator(": countup 1 2 3 ; countup", DEFAULT_STACK_SIZE),
+        vec![1, 2, 3]
+    );
+    assert_eq!(
+        eval_forth_calculator(": foo dup ; : foo dup dup ; 1 foo", DEFAULT_STACK_SIZE),
+        vec![1, 1, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator(": swap dup ; 1 swap", DEFAULT_STACK_SIZE),
+        vec![1, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator(": + * ; 3 4 +", DEFAULT_STACK_SIZE),
+        vec![12]
+    );
+    assert_eq!(
+        eval_forth_calculator(
+            ": foo 5 ; : bar foo ; : foo 6 ; bar foo",
+            DEFAULT_STACK_SIZE
+        ),
+        vec![5, 6]
+    );
+    assert_eq!(
+        eval_forth_calculator(": foo 10 ; : foo foo 1 + ; foo", DEFAULT_STACK_SIZE),
+        vec![11]
+    );
+}
+
+#[test]
+fn test_case_insensitive() {
+        assert_eq!(
+        eval_forth_calculator("1 DUP Dup dup", DEFAULT_STACK_SIZE),
+        vec![1, 1, 1, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator("1 2 3 4 DROP Drop drop", DEFAULT_STACK_SIZE),
+        vec![1]
+    );
+    assert_eq!(
+        eval_forth_calculator("1 2 SWAP 3 Swap 4 swap", DEFAULT_STACK_SIZE),
+        vec![2, 3, 4, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator("1 2 OVER Over over", DEFAULT_STACK_SIZE),
+        vec![1, 2, 1, 2, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator(": foo dup ; 1 FOO Foo foo", DEFAULT_STACK_SIZE),
+        vec![1, 1, 1, 1]
+    );
+    assert_eq!(
+        eval_forth_calculator(": SWAP DUP Dup dup ; 1 swap", DEFAULT_STACK_SIZE),
+        vec![1, 1, 1, 1]
+    );
+}
+
+#[test]
+fn test_invalid_words() {
+    let mut calc = create_calculator(DEFAULT_STACK_SIZE);
+    calc.run(": 1 2 ;".to_string());
+    assert_eq!(calc.get_output(), "invalid-word\n");
+    assert!(calc.get_stack().is_empty());
+
+    let mut calc = create_calculator(DEFAULT_STACK_SIZE);
+    calc.run(": -1 2 ;".to_string());
+    assert_eq!(calc.get_output(), "invalid-word\n");
+    assert!(calc.get_stack().is_empty());
+
+    let mut calc = create_calculator(DEFAULT_STACK_SIZE);
+    calc.run("foo".to_string());
+    assert_eq!(calc.get_output(), "?\n");
+    assert!(calc.get_stack().is_empty());
+}
+
+#[test]
+fn test_non_cloning_word_definition() {
+    let code = "
+        : word1 1 ;
+        : word2 word1 word1 ;
+        : word4 word2 word2 ;
+        : word8 word4 word4 ;
+        : word16 word8 word8 ;
+        : word32 word16 word16 ;
+        : word64 word32 word32 ;
+        : word128 word64 word64 ;
+        : word256 word128 word128 ;
+        : word512 word256 word256 ;
+        : word1024 word512 word512 ;
+        : word2048 word1024 word1024 ;
+        : word4096 word2048 word2048 ;
+        : word8192 word4096 word4096 ;
+        : word16384 word8192 word8192 ;
+        : word32768 word16384 word16384 ;
+        : word65536 word32768 word32768 ;
+        : word131072 word65536 word65536 ;
+        : word262144 word131072 word131072 ;
+        : word524288 word262144 word262144 ;
+        : word1048576 word524288 word524288 ;
+        : word2097152 word1048576 word1048576 ;
+        : word4194304 word2097152 word2097152 ;
+        : word8388608 word4194304 word4194304 ;
+        : word16777216 word8388608 word8388608 ;
+        : word33554432 word16777216 word16777216 ;
+        : word67108864 word33554432 word33554432 ;
+        : word134217728 word67108864 word67108864 ;
+    ";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![]);
+}
