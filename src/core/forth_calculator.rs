@@ -6,6 +6,7 @@ use crate::core::operation::Operation;
 use crate::core::operation::{get_all_standar_operations, get_output_operations};
 use crate::utils::file_manager;
 use std::collections::HashMap;
+use std::usize;
 
 const CANONIC_SUBFIX: &str = "c";
 
@@ -294,7 +295,15 @@ impl ForthCalculator {
         Err(OperationError::WordNotFound)
     }
 
-    // Handle word lookup and execution when a token isn't a number or standard operation
+    /// Handles the execution of a token that may refer to a user-defined word.
+    /// If the word is not found in the registry, an error is appended to the output.
+    /// If the token ends in a valid index, it attempts to execute the corresponding word.
+    /// If the token is a standard operation, it attempts to execute it.
+    ///
+    /// # Parameters
+    /// - `token`: A string token that may refer to a user-defined word or an operation.
+    /// - `output`: A mutable reference to a string where error messages or results are written.
+
     fn handle_word_lookup(&mut self, token: &str, output: &mut String) {
         let token_parts: Vec<&str> = token.split('_').collect();
         let word_token = token_parts[0];
@@ -315,6 +324,16 @@ impl ForthCalculator {
         }
     }
 
+    /// Executes a word by its index from the word registry and processes the associated tokens.
+    ///
+    /// # Parameters
+    /// - `word_index`: The index of the word in the word registry.
+    /// - `_token`: The original token (not used here but kept for signature compatibility).
+    /// - `output`: A mutable reference to a string where error messages or results are written.
+    ///
+    /// # Returns
+    /// Returns `Ok(())` if the word execution is successful, or an `OperationError` if there is a failure.
+    /// 
     fn execute_word_by_index(
         &mut self,
         word_index: usize,
@@ -325,7 +344,14 @@ impl ForthCalculator {
         self.process_word_tokens(&tokens_to_process, output)
     }
 
-    // Extract tokens from a word definition by index
+    /// Retrieves the tokens that represent the body of a word definition.
+    ///
+    /// # Parameters
+    /// - `word_index`: The index of the word in the word registry.
+    ///
+    /// # Returns
+    /// Returns a vector of strings representing the tokens of the word body.
+
     fn get_word_tokens(&self, word_index: usize) -> Vec<String> {
         self.word_registry.words[word_index]
             .body
@@ -334,33 +360,116 @@ impl ForthCalculator {
             .collect()
     }
 
-    // Process all tokens from a word body
+    /// Processes the list of tokens that represent the body of a word definition.
+    /// It handles conditional branching with `if`, `else`, and `then` constructs.
+    ///
+    /// # Parameters
+    /// - `tokens`: A slice of strings representing the body of a word to be processed.
+    /// - `output`: A mutable reference to a string where error messages or results are written.
+    ///
+    /// # Returns
+    /// Returns `Ok(())` if the processing is successful, or an `OperationError` if there is a failure.
+
     fn process_word_tokens(
         &mut self,
         tokens: &[String],
         output: &mut String,
     ) -> Result<(), OperationError> {
-        for word_token in tokens {
-            if let Ok(number) = word_token.parse::<i16>() {
-                self.push_number(number)?;
-            } else {
-                let word_token_parts: Vec<&str> = word_token.split("_").collect();
-                let word_token_name = word_token_parts[0];
-                if word_token_parts[1] != CANONIC_SUBFIX {
-                    let index_word_token = word_token_parts[1].parse::<usize>();
-                    if !self.word_registry.contains_key(word_token_name) {
-                        return Err(OperationError::WordNotFound);
+        let mut i = 0;
+        while i < tokens.len() {
+            match tokens[i].as_str() {
+                "if" => {
+                    let cond = self.stack.pop().ok_or(OperationError::StackUnderflow)?;
+                    let (then_pos, if_branch, else_branch) = self.extract_branch(tokens, i)?;
+
+                    if cond != 0 {
+                        self.process_word_tokens(if_branch, output)?;
+                    } else if let Some(else_body) = else_branch {
+                        self.process_word_tokens(else_body, output)?;
                     }
-                    // Check if this is a nested word call
-                    if let Ok(wi) = index_word_token {
-                        self.execute_word_by_index(wi, word_token_name, output)?;
-                    }
-                } else {
-                    self.execute_operation(word_token, output)?;
+                    i = then_pos + 1; 
+                }
+                token => {
+                    self.process_single_token(token, output)?;
+                    i += 1;
                 }
             }
         }
         Ok(())
+    }
+
+    /// Extracts the conditional branches (`if`, `else`, `then`) from a list of tokens, starting from the "if" token.
+    /// Returns the position of the matching "then", and slices for the `if` and optional `else` branches.
+    ///
+    /// # Parameters
+    /// - `tokens`: A slice of strings representing the tokens to be processed.
+    /// - `start`: The index where the processing of the `if` token starts.
+    ///
+    /// # Returns
+    /// Returns a tuple with the following:
+    /// - The position of the "then" token.
+    /// - The slice representing the `if` branch.
+    /// - The slice representing the `else` branch, or `None` if there is no `else`.
+    ///
+    /// # Errors
+    /// Returns `OperationError::InvalidIfFormat` if the `if` format is invalid or mismatched.
+
+    fn extract_branch<'_slice_tokens>(
+        &mut self,
+        tokens: &'_slice_tokens [String],
+        start: usize,
+    ) -> Result<(usize, &'_slice_tokens [String], Option<&'_slice_tokens [String]>), OperationError> {
+        let mut branch_nesting = 0;
+        let mut else_index: Option<usize> = None;
+        let mut then_index: Option<usize> = None;
+    
+        let mut i = start;
+        while i < tokens.len() {
+            match tokens[i].as_str() {
+                "if" => branch_nesting += 1,
+                "then" => {
+                    if branch_nesting == 0 {
+                        return Err(OperationError::InvalidIfFormat);
+                    }
+                    branch_nesting -= 1;                    
+                    if branch_nesting == 0 {
+                        then_index = Some(i);
+                        break;
+                    }
+                }
+                "else" => {
+                    if branch_nesting == 1 && else_index.is_none() {
+                        else_index = Some(i);
+                    }
+                }
+                _ => {}
+            }
+            i += 1;
+        }
+    
+        match then_index {
+            Some(then_pos) => {
+                let if_start = start + 1;
+    
+                let if_end = match else_index {
+                    Some(index) => index,
+                    None => then_pos,
+                };
+    
+                let if_branch =  &tokens[if_start..if_end];
+    
+                let else_branch = match else_index {
+                    Some(else_pos) => {
+                        let slice = &tokens[else_pos + 1..then_pos];
+                        Some(slice)
+                    }
+                    None => None,
+                };
+    
+                Ok((then_pos, if_branch, else_branch))
+            }
+            None => Err(OperationError::InvalidWord),
+        }
     }
 }
 
