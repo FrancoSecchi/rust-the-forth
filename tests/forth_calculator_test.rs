@@ -284,3 +284,58 @@ fn test_non_cloning_word_definition() {
     let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
     assert_eq!(result, vec![]);
 }
+
+
+#[test]
+fn test_unit_computation_1() {
+    let code = ": meter 100 * ; : decimeter 10 * ; : centimeter 1 * ; 1 meter 5 decimeter 2 centimeter + +";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![152]);    
+}
+
+#[test]
+fn test_unit_computation_2() {
+    let code = ": seconds 1 * ; : minutes 60 * seconds ; : hours 60 * minutes ; 2 hours 13 minutes 5 seconds + +";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![7985]);
+}
+
+#[test]
+fn test_constant_summation() {
+
+    let code = ": one1 1 ; : one2  one1 one1 ; : one4  one2 one2 ; : one8  one4 one4 ; : one16 one8 one8 ; \
+         : add1 + ; : add2  add1 add1 ; : add4  add2 add2 ; : add8  add4 add4 ; : add16 add8 add8 ; \
+         0 one16 add16";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![16]);    
+}
+
+#[test]
+fn test_linear_summation() {
+    let code = ": next1 dup 1 + ; : next2  next1 next1 ; : next4  next2 next2 ; : next8  next4 next4 ; : next16 next8 next8 ; \
+         : add1 + ; : add2  add1 add1 ; : add4  add2 add2 ; : add8  add4 add4 ; : add16 add8 add8 ; \
+         0 next16 add16";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![136]);
+}
+
+#[test]
+fn test_geometric_summation() {
+
+    let code = ": next1 dup 2 * ; : next2  next1 next1 ; : next4  next2 next2 ; : next8  next4 next4 ; \
+         : add1 + ; : add2  add1 add1 ; : add4  add2 add2 ; : add8  add4 add4 ; \
+         1 next8 add8";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![511]);
+}
+
+#[test]
+fn test_power_of_2() {
+
+    let code = ": next1 dup 2 * ; : next2  next1 next1 ; : next4  next2 next2 ; \
+         : mul1 * ; : mul2  mul1 mul1 ; : mul4  mul2 mul2 ; \
+         1 next4 mul4";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![1024]);    
+}
+
