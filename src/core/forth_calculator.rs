@@ -162,7 +162,7 @@ impl ForthCalculator {
                     }
                     let mut body = vec![];
 
-                    while let Some(def_token) = tokens_iter.next() {
+                    for def_token in tokens_iter.by_ref() {
                         i += 1;
                         if def_token == ";" {
                             break;
