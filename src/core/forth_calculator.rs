@@ -374,6 +374,27 @@ impl ForthCalculator {
             .collect()
     }
 
+    /// Execute the if token
+    ///
+    /// # Returns
+    /// The position of the "then"
+    fn execute_if_token(
+        &mut self,
+        tokens: &[String],
+        output: &mut String,
+        i: usize,
+    ) -> Result<usize, OperationError> {
+        let cond = self.stack.pop().ok_or(OperationError::StackUnderflow)?;
+        let (then_pos, if_branch, else_branch) = Conditional::extract_branch(tokens, i)?;
+
+        if cond != 0 {
+            self.process_word_tokens(if_branch, output)?;
+        } else if let Some(else_body) = else_branch {
+            self.process_word_tokens(else_body, output)?;
+        }
+
+        Ok(then_pos + 1)
+    }
     /// Processes the list of tokens that represent the body of a word definition.
     /// It handles conditional branching with `if`, `else`, and `then` constructs.
     ///
@@ -390,16 +411,7 @@ impl ForthCalculator {
         while i < tokens.len() {
             match tokens[i].as_str() {
                 "if" => {
-                    let cond = self.stack.pop().ok_or(OperationError::StackUnderflow)?;
-                    let (then_pos, if_branch, else_branch) =
-                        Conditional::extract_branch(tokens, i)?;
-
-                    if cond != 0 {
-                        self.process_word_tokens(if_branch, output)?;
-                    } else if let Some(else_body) = else_branch {
-                        self.process_word_tokens(else_body, output)?;
-                    }
-                    i = then_pos + 1;
+                    i = self.execute_if_token(tokens, output, i)?;
                 }
                 token => {
                     if let Ok(number) = token.parse::<i16>() {
