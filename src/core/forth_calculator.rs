@@ -145,25 +145,19 @@ impl ForthCalculator {
             return Err(OperationError::InvalidWordFormat);
         }
 
+        let mut transformed_tokens: Vec<String> = Vec::new();
         let mut tokens_iter = tokens.iter_mut().peekable();
-        let mut i: usize = 0;
-        let mut vec_drain: Vec<(usize, usize)> = vec![];
 
         while let Some(token) = tokens_iter.next() {
+            let mut token = token.to_lowercase();
             if token == ":" {
-                let start = i;
-                i += 1;
-
                 if let Some(word_name) = tokens_iter.next() {
-                    i += 1;
-
                     if word_name.parse::<i16>().is_ok() {
                         return Err(OperationError::InvalidWord);
                     }
                     let mut body = vec![];
 
                     for def_token in tokens_iter.by_ref() {
-                        i += 1;
                         if def_token == ";" {
                             break;
                         } else {
@@ -173,25 +167,14 @@ impl ForthCalculator {
                     }
 
                     self.word_registry.define_word(word_name.to_string(), body);
-
-                    if self.word_registry.contains_key(word_name) {
-                        word_name.push_str(&format!("_{}", self.word_registry.get_version()));
-                    }
-
-                    let end = i - 1;
-                    vec_drain.push((start, end));
                 }
             } else {
-                self.append_word_version_suffix(token);
-                i += 1;
+                self.append_word_version_suffix(&mut token);
+                transformed_tokens.push(token);
             }
         }
-
-        vec_drain.sort_by(|a, b| b.0.cmp(&a.0));
-        for (start, end) in vec_drain {
-            tokens.drain(start..=end);
-        }
-
+        tokens.drain(..);
+        tokens.extend(transformed_tokens);
         Ok(())
     }
 
@@ -292,10 +275,10 @@ impl ForthCalculator {
         output: &mut String,
     ) -> Result<(), OperationError> {
         let token_parts: Vec<&str> = token.split('_').collect();
-        if token_parts.len() > 1 && token_parts[1] == CANONIC_SUBFIX {        
+        if token_parts.len() > 1 && token_parts[1] == CANONIC_SUBFIX {
             let original_token = token_parts[0];
-            let operation_type = OperationType::from_token(original_token)
-                .ok_or(OperationError::WordNotFound)?;
+            let operation_type =
+                OperationType::from_token(original_token).ok_or(OperationError::WordNotFound)?;
 
             if let Some(operation) = self.operations.get(&operation_type) {
                 return operation.apply(&mut self.stack);
@@ -304,7 +287,6 @@ impl ForthCalculator {
             if let Some(operation) = self.output_operations.get(&operation_type) {
                 return operation.apply(&mut self.stack, output, original_token);
             }
-        
         }
         Err(OperationError::WordNotFound)
     }
@@ -323,10 +305,10 @@ impl ForthCalculator {
             if let Err(error) = self.execute_operation(token, output) {
                 self.add_string_output_error(output, error);
             }
-        } else if let Ok(wi) = index_word_token {        
+        } else if let Ok(wi) = index_word_token {
             if let Err(error) = self.execute_word_by_index(wi, word_token, output) {
                 self.add_string_output_error(output, error);
-            }            
+            }
         }
     }
 
@@ -368,7 +350,7 @@ impl ForthCalculator {
                     }
                     // Check if this is a nested word call
                     if let Ok(wi) = index_word_token {
-                        self.execute_word_by_index(wi, word_token_name, output)?;                        
+                        self.execute_word_by_index(wi, word_token_name, output)?;
                     }
                 } else {
                     self.execute_operation(word_token, output)?;
