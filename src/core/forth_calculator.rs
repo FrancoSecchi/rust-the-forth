@@ -163,16 +163,17 @@ impl ForthCalculator {
                         let mut def_token = def_token.to_lowercase();
                         if def_token == ";" {
                             break;
-                        } else {        
-                            //println!("antes {def_token}");                
+                        } else {
+                            //println!("antes {def_token}");
                             self.append_word_version_suffix(&mut def_token);
                             body.push(def_token.to_string());
                         }
-                    }   
-                    
-                    self.word_registry.define_word(word_name.to_lowercase().to_string(), body);                    
+                    }
+
+                    self.word_registry
+                        .define_word(word_name.to_lowercase().to_string(), body);
                 }
-            } else {                
+            } else {
                 self.append_word_version_suffix(&mut token);
                 transformed_tokens.push(token);
             }
@@ -182,7 +183,7 @@ impl ForthCalculator {
         Ok(())
     }
 
-    fn append_word_version_suffix(&self, token: &mut String) {        
+    fn append_word_version_suffix(&self, token: &mut String) {
         if let Some(word_versions) = self.word_registry.get_word_versions(token) {
             if let Some(last_index) = word_versions.last() {
                 token.push_str(&format!("_{}", last_index));
@@ -246,7 +247,14 @@ impl ForthCalculator {
         Ok(())
     }
 
-    // Process the validated tokens
+    /// Processes the validated tokens, iterating through each token and handling it.
+    ///
+    /// This function processes a list of tokens, calling `process_single_token` for each one. If the processing of a token fails (returns an error),
+    /// it attempts to handle the token as a word lookup by calling `handle_word_lookup`.
+    ///
+    /// # Arguments
+    /// * `tokens` - A slice of `String` containing the tokens to be processed.
+    /// * `output` - A mutable reference to a `String` where output will be written.
     fn process_tokens(&mut self, tokens: &[String], output: &mut String) {
         for token in tokens {
             let result = self.process_single_token(token, output);
@@ -257,6 +265,15 @@ impl ForthCalculator {
         }
     }
 
+    /// Processes a single token by attempting to parse it as a number or an operation.
+    ///
+    /// This function tries to parse the given token as a number. If it succeeds, the number is pushed onto the stack.
+    /// If it fails to parse the token as a number, it attempts to execute the token as an operation by calling `execute_operation`.
+    ///
+    /// # Arguments
+    /// * `token` - A reference to a `str` representing the token to be processed.
+    /// * `output` - A mutable reference to a `String` where output will be written.
+    ///
     fn process_single_token(
         &mut self,
         token: &str,
@@ -331,9 +348,6 @@ impl ForthCalculator {
     /// - `_token`: The original token (not used here but kept for signature compatibility).
     /// - `output`: A mutable reference to a string where error messages or results are written.
     ///
-    /// # Returns
-    /// Returns `Ok(())` if the word execution is successful, or an `OperationError` if there is a failure.
-    /// 
     fn execute_word_by_index(
         &mut self,
         word_index: usize,
@@ -366,9 +380,7 @@ impl ForthCalculator {
     /// # Parameters
     /// - `tokens`: A slice of strings representing the body of a word to be processed.
     /// - `output`: A mutable reference to a string where error messages or results are written.
-    ///
-    /// # Returns
-    /// Returns `Ok(())` if the processing is successful, or an `OperationError` if there is a failure.
+    ///    
 
     fn process_word_tokens(
         &mut self,
@@ -387,7 +399,7 @@ impl ForthCalculator {
                     } else if let Some(else_body) = else_branch {
                         self.process_word_tokens(else_body, output)?;
                     }
-                    i = then_pos + 1; 
+                    i = then_pos + 1;
                 }
                 token => {
                     self.process_single_token(token, output)?;
@@ -409,20 +421,24 @@ impl ForthCalculator {
     /// Returns a tuple with the following:
     /// - The position of the "then" token.
     /// - The slice representing the `if` branch.
-    /// - The slice representing the `else` branch, or `None` if there is no `else`.
+    /// - The slice representing the `else` branch, or `None` if there is no `else`.        
     ///
-    /// # Errors
-    /// Returns `OperationError::InvalidIfFormat` if the `if` format is invalid or mismatched.
-
     fn extract_branch<'_slice_tokens>(
         &mut self,
         tokens: &'_slice_tokens [String],
         start: usize,
-    ) -> Result<(usize, &'_slice_tokens [String], Option<&'_slice_tokens [String]>), OperationError> {
+    ) -> Result<
+        (
+            usize,
+            &'_slice_tokens [String],
+            Option<&'_slice_tokens [String]>,
+        ),
+        OperationError,
+    > {
         let mut branch_nesting = 0;
         let mut else_index: Option<usize> = None;
         let mut then_index: Option<usize> = None;
-    
+
         let mut i = start;
         while i < tokens.len() {
             match tokens[i].as_str() {
@@ -431,7 +447,7 @@ impl ForthCalculator {
                     if branch_nesting == 0 {
                         return Err(OperationError::InvalidIfFormat);
                     }
-                    branch_nesting -= 1;                    
+                    branch_nesting -= 1;
                     if branch_nesting == 0 {
                         then_index = Some(i);
                         break;
@@ -446,18 +462,18 @@ impl ForthCalculator {
             }
             i += 1;
         }
-    
+
         match then_index {
             Some(then_pos) => {
                 let if_start = start + 1;
-    
+
                 let if_end = match else_index {
                     Some(index) => index,
                     None => then_pos,
                 };
-    
-                let if_branch =  &tokens[if_start..if_end];
-    
+
+                let if_branch = &tokens[if_start..if_end];
+
                 let else_branch = match else_index {
                     Some(else_pos) => {
                         let slice = &tokens[else_pos + 1..then_pos];
@@ -465,7 +481,7 @@ impl ForthCalculator {
                     }
                     None => None,
                 };
-    
+
                 Ok((then_pos, if_branch, else_branch))
             }
             None => Err(OperationError::InvalidWord),
