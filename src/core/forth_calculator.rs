@@ -1,4 +1,4 @@
-use super::operation::conditional_module::ConditionalToken;
+use super::operation::conditional_module::Conditional;
 use super::operation::OperationOutput;
 use super::operation::OperationType;
 use crate::core::error::OperationError;
@@ -390,9 +390,9 @@ impl ForthCalculator {
         while i < tokens.len() {
             match tokens[i].as_str() {
                 "if" => {
-                    let cond = self.stack.pop().ok_or(OperationError::StackUnderflow)?;                    
+                    let cond = self.stack.pop().ok_or(OperationError::StackUnderflow)?;
                     let (then_pos, if_branch, else_branch) =
-                        ConditionalToken::extract_branch(tokens, i)?;
+                        Conditional::extract_branch(tokens, i)?;
 
                     if cond != 0 {
                         self.process_word_tokens(if_branch, output)?;
@@ -429,7 +429,7 @@ impl ForthCalculator {
 
 #[cfg(test)]
 mod tests {
-    use super::*;    
+    use super::*;
     fn create_calculator() -> ForthCalculator {
         ForthCalculator::new(100)
     }
