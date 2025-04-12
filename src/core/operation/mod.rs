@@ -28,6 +28,10 @@ pub mod stack_manipulation;
 ///
 pub mod word_definition;
 
+/// Conditional module for handling `if-else-then` expressions.
+/// Provides static utilities to locate and extract conditional branches from a token list.
+pub mod conditional_module;
+
 /// Defines a trait for stack-based operations.
 ///
 /// Implementors of this trait must define the `apply` method, which takes
