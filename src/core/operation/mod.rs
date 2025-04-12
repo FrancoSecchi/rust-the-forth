@@ -23,6 +23,9 @@ pub mod output;
 /// all of which implement the `Operation` trait.
 pub mod stack_manipulation;
 
+/// The `word_definition` module proves fundamental operations
+/// to define and manage words defined by the user.
+///
 pub mod word_definition;
 
 /// Defines a trait for stack-based operations.

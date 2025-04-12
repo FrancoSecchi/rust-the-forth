@@ -2,15 +2,20 @@ use std::collections::HashMap;
 
 use super::Word;
 
+/// A registry for storing word definitions and their versions.
+///
+/// This structure holds a list of all words and their definitions (`words`) and a mapping
+/// from the word name to a list of indices representing all versions of that word (`current_definition`).
+/// Each time a word is redefined, a new definition is added to `words`, and the `current_definition`
+/// keeps track of all versions of that word.
 #[derive(Debug)]
-
 pub struct WordRegistry {
-    /// A vector with all word definitions (including older versions).
+    /// A vector that stores all word definitions, including older versions.
     pub words: Vec<Word>,
-    /// A mapping from a word name to the index in `words` that corresponds to its current definition.
+    /// A mapping from the word name to the indices of its current definition(s) in `words`.
+    /// This allows for easy retrieval of the latest definition of a word.
     pub current_definition: HashMap<String, Vec<usize>>,
 }
-
 impl Default for WordRegistry {
     fn default() -> Self {
         Self::new()
@@ -48,10 +53,19 @@ impl WordRegistry {
             self.current_definition.insert(name, vec![new_index]);
         }
     }
+
+    /// Checks if a word has been defined in the registry.
+    ///
+    /// # Parameters
+    /// - `key`: The name of the word to check.    
     pub fn contains_key(&self, key: &str) -> bool {
         self.current_definition.contains_key(key)
     }
 
+    /// Retrieves the current version index of the last defined word.
+    ///
+    /// # Returns
+    /// The version index of the most recently added word
     pub fn get_version(&self) -> usize {
         if self.words.is_empty() {
             0
@@ -60,10 +74,24 @@ impl WordRegistry {
         }
     }
 
+    /// Retrieves the versions of a word, i.e., all indices in `words` where the word has been defined.
+    ///
+    /// # Parameters
+    /// - `key`: The name of the word for which to fetch versions.
+    ///
+    /// # Returns
+    /// An `Option` containing a reference to a vector of indices representing all versions of the word,
+    /// or `None` if the word has not been defined.
     pub fn get_word_versions(&self, key: &str) -> Option<&Vec<usize>> {
         self.current_definition.get(key)
     }
 
+    /// Checks if a specific version of a word exists in the registry.
+    ///
+    /// # Parameters
+    /// - `name`: The name of the word to check.
+    /// - `version`: The version index to check for.
+    ///     
     pub fn has_version(&self, name: &str, version: usize) -> bool {
         if let Some(versions) = self.current_definition.get(name) {
             versions.contains(&version)
