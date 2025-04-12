@@ -335,3 +335,62 @@ fn test_power_of_2() {
     let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
     assert_eq!(result, vec![1024]);
 }
+
+#[test]
+fn test_if_simple() {
+    let code = ": f if 2 then ; -1 f";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![2]);
+}
+
+#[test]
+fn test_if_else() {
+    let code = ": f if 2 else 3 then ; -1 f 0 f";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![2, 3]);
+}
+
+#[test]
+fn test_nested_if() {
+    let code = ": f
+      if
+        if 1 else 2 then
+      else
+        drop 3
+      then 
+      ;
+      -1 -1 f
+      0 -1 f
+      0 0 f
+      ";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);    
+    let expected = vec![1, 2, 3]; // Stack after different calls of `f`
+    assert_eq!(result, expected);
+}
+
+#[test]
+fn test_nested_if_else() {
+    let code = ": f
+      dup 0 = if
+        drop 2
+      else dup 1 = if
+        drop 3
+      else
+        drop 4
+      then then ;
+      0 f
+      1 f
+      2 f      
+      ";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    let expected = vec![2, 3, 4]; // Stack after different calls of `f`
+    assert_eq!(result, expected);    
+}
+
+#[test]
+fn test_if_non_canonical() {
+    let code = ": f if 10 then ; 5 f";
+    let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
+    assert_eq!(result, vec![10]);
+}
+
