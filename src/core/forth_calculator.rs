@@ -1,5 +1,7 @@
 use super::operation::OperationOutput;
 use super::operation::OperationType;
+use super::types::BranchResult;
+use super::types::BranchSlices;
 use crate::core::error::OperationError;
 use crate::core::operation::word_definition::WordRegistry;
 use crate::core::operation::Operation;
@@ -8,15 +10,6 @@ use crate::utils::file_manager;
 use std::collections::HashMap;
 
 const CANONIC_SUBFIX: &str = "c";
-
-type BranchResult<'a> = Result<
-    (
-        usize,                // then index
-        &'a [String],         // 'if' branch tokens
-        Option<&'a [String]>, // else branch tokens (optional)
-    ),
-    OperationError,
->;
 
 /// A stack-based calculator implementing a subset of the Forth language.
 /// This calculator supports arithmetic operations, boolean operations,
@@ -433,6 +426,44 @@ impl ForthCalculator {
         Ok(())
     }
 
+    fn get_branch_indices(
+        &self,
+        tokens: &[String],
+        start: usize,
+    ) -> Result<(usize, Option<usize>), OperationError> {
+        let mut branch_nesting = 0;
+        let mut else_index = None;
+        let mut then_index = None;
+
+        let mut j = start;
+        while j < tokens.len() {
+            match tokens[j].as_str() {
+                "if" => branch_nesting += 1,
+                "then" => {
+                    if branch_nesting == 0 {
+                        return Err(OperationError::InvalidWord);
+                    }
+                    branch_nesting -= 1;
+                    if branch_nesting == 0 {
+                        then_index = Some(j);
+                        break;
+                    }
+                }
+                "else" => {
+                    if branch_nesting == 1 && else_index.is_none() {
+                        else_index = Some(j);
+                    }
+                }
+                _ => {}
+            }
+            j += 1;
+        }
+
+        match then_index {
+            Some(ti) => Ok((ti, else_index)),
+            None => Err(OperationError::InvalidWord),
+        }
+    }
     /// Extracts the conditional branches (`if`, `else`, `then`) from a list of tokens, starting from the "if" token.
     /// Returns the position of the matching "then", and slices for the `if` and optional `else` branches.
     ///
@@ -446,62 +477,56 @@ impl ForthCalculator {
     /// - The slice representing the `if` branch.
     /// - The slice representing the `else` branch, or `None` if there is no `else`.        
     ///
-    fn extract_branch<'_slice_tokens>(
+    fn extract_branch<'_tokens>(
         &mut self,
+        tokens: &'_tokens [String],
+        start: usize,
+    ) -> BranchResult<'_tokens> {
+        let (then_index, else_index) = self.get_branch_indices(tokens, start)?;
+        let (if_branch, else_branch) =
+            self.get_branch_slices(tokens, start, then_index, else_index)?;
+        Ok((then_index, if_branch, else_branch))
+    }
+
+    /// Retrieves slices of tokens representing the `if` and `else` branches of a conditional statement.
+    /// 
+    /// This function takes a list of tokens, and based on the provided starting position and indices of the
+    /// `then` and `else` branches, it returns slices corresponding to the `if` and `else` branches of a conditional.
+    ///
+    /// # Parameters
+    /// 
+    /// - `tokens`: A slice of strings representing the tokens of the entire program or script.
+    /// - `start`: The index of the token where the conditional expression starts.
+    /// - `then_index`: The index of the token corresponding to the `then` keyword.
+    /// - `else_index`: An optional index of the token corresponding to the `else` keyword. If `None`, the conditional has no `else` branch.
+    ///
+    /// # Returns
+    /// 
+    /// This function returns a `Result`:
+    /// - `Ok`: A tuple containing two slices:
+    ///   - A slice representing the tokens in the `if` branch .
+    ///   - An optional slice representing the tokens in the `else` branch.
+    /// - `Err`: An `OperationError` if there was an issue extracting the slices (such as invalid indices).
+
+    fn get_branch_slices<'_slice_tokens>(
+        &self,
         tokens: &'_slice_tokens [String],
         start: usize,
-    ) -> BranchResult<'_slice_tokens> {
-        let mut branch_nesting = 0;
-        let mut else_index: Option<usize> = None;
-        let mut then_index: Option<usize> = None;
+        then_index: usize,
+        else_index: Option<usize>,
+    ) -> BranchSlices<'_slice_tokens> {
+        let if_start = start + 1;
+        let if_end = if let Some(ei) = else_index {
+            ei
+        } else {
+            then_index
+        };
 
-        let mut i = start;
-        while i < tokens.len() {
-            match tokens[i].as_str() {
-                "if" => branch_nesting += 1,
-                "then" => {
-                    if branch_nesting == 0 {
-                        return Err(OperationError::InvalidIfFormat);
-                    }
-                    branch_nesting -= 1;
-                    if branch_nesting == 0 {
-                        then_index = Some(i);
-                        break;
-                    }
-                }
-                "else" => {
-                    if branch_nesting == 1 && else_index.is_none() {
-                        else_index = Some(i);
-                    }
-                }
-                _ => {}
-            }
-            i += 1;
-        }
+        let if_branch = &tokens[if_start..if_end];
 
-        match then_index {
-            Some(then_pos) => {
-                let if_start = start + 1;
+        let else_branch = else_index.map(|else_pos| &tokens[else_pos + 1..then_index]);
 
-                let if_end = match else_index {
-                    Some(index) => index,
-                    None => then_pos,
-                };
-
-                let if_branch = &tokens[if_start..if_end];
-
-                let else_branch = match else_index {
-                    Some(else_pos) => {
-                        let slice = &tokens[else_pos + 1..then_pos];
-                        Some(slice)
-                    }
-                    None => None,
-                };
-
-                Ok((then_pos, if_branch, else_branch))
-            }
-            None => Err(OperationError::InvalidWord),
-        }
+        Ok((if_branch, else_branch))
     }
 }
 
