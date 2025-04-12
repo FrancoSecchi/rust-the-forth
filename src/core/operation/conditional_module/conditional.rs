@@ -5,18 +5,18 @@ use crate::core::{
 
 /// Provides static utilities for handling conditional logic in tokenized Forth-like programs.
 ///
-/// `ConditionalToken` is a stateless utility struct used to encapsulate logic related
+/// `Conditional` is a stateless utility struct used to encapsulate logic related
 /// to control flow structures such as `if`, `else`, and `then`. All methods are static
 /// and are intended to be used directly without instantiating the struct.
 ///
 /// Example usage:
 /// ```text
 /// let (then_index, if_branch, else_branch) =
-///     ConditionalToken::extract_branch(&tokens, start_index)?;
+///     Conditional::extract_branch(&tokens, start_index)?;
 /// ```
-pub struct ConditionalToken;
+pub struct Conditional;
 
-impl ConditionalToken {
+impl Conditional {
     /// Returns the indices of the matching `then` and optional `else` tokens starting from an `if`.
     ///
     /// # Parameters
@@ -74,10 +74,7 @@ impl ConditionalToken {
     /// # Returns
     /// - `Ok((then_index, if_branch, else_branch))` with slices of tokens.
     /// - `Err(OperationError)` if branch structure is invalid.
-    pub fn extract_branch<>(
-        tokens: &[String],
-        start: usize,
-    ) -> BranchResult<'_> {
+    pub fn extract_branch(tokens: &[String], start: usize) -> BranchResult<'_> {
         let (then_index, else_index) = Self::get_branch_indices(tokens, start)?;
         let (if_branch, else_branch) =
             Self::get_branch_slices(tokens, start, then_index, else_index)?;
@@ -97,7 +94,7 @@ impl ConditionalToken {
     /// - A slice of the `if` branch.
     /// - An optional slice of the `else` branch.    
     pub fn get_branch_slices(
-        tokens: & [String],
+        tokens: &[String],
         start: usize,
         then_index: usize,
         else_index: Option<usize>,
