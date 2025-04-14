@@ -1,4 +1,4 @@
-use rust_the_forth::core::{error::OperationError, forth_calculator::ForthCalculator};
+use rust_the_forth::core::forth_calculator::ForthCalculator;
 const DEFAULT_STACK_SIZE: i16 = 128;
 
 fn create_calculator(stack_size: i16) -> ForthCalculator {
