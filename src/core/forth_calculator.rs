@@ -82,7 +82,6 @@ impl ForthCalculator {
     ///     
     fn are_valid_tokens(&mut self, tokens: &mut Vec<String>) -> Result<(), OperationError> {
         self.extract_words(tokens)?;
-        //println!("{:#?}", tokens);
         for token in tokens {
             if let Err(_error) = token.parse::<i16>() {
                 let parts: Vec<&str> = token.split('_').collect();
@@ -164,7 +163,6 @@ impl ForthCalculator {
                         if def_token == ";" {
                             break;
                         } else {
-                            //println!("antes {def_token}");
                             self.append_word_version_suffix(&mut def_token);
                             body.push(def_token.to_string());
                         }
@@ -258,9 +256,14 @@ impl ForthCalculator {
     fn process_tokens(&mut self, tokens: &[String], output: &mut String) {
         for token in tokens {
             let result = self.process_single_token(token, output);
-
-            if result.is_err() {
-                self.handle_word_lookup(token, output);
+            if let Err(error) = result {
+                let token_parts: Vec<&str> = token.split('_').collect();
+                if token_parts.len() > 1  && self.word_registry.contains_key(token_parts[0]){
+                    self.handle_word_lookup(token, output);
+                } else {
+                    self.add_string_output_error(output, error);
+                }
+                
             }
         }
     }
