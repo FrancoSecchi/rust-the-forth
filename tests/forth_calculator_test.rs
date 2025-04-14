@@ -1,4 +1,4 @@
-use rust_the_forth::core::forth_calculator::ForthCalculator;
+use rust_the_forth::core::{error::OperationError, forth_calculator::ForthCalculator};
 const DEFAULT_STACK_SIZE: i16 = 128;
 
 fn create_calculator(stack_size: i16) -> ForthCalculator {
@@ -392,4 +392,38 @@ fn test_if_non_canonical() {
     let code = ": f if 10 then ; 5 f";
     let result = eval_forth_calculator(code, DEFAULT_STACK_SIZE);
     assert_eq!(result, vec![10]);
+}
+
+fn eval_error_test_code(code: String, error_string: String, check_is_empty: bool, stack_size: i16) {
+    let mut calc: ForthCalculator = create_calculator(stack_size);
+    calc.run(code.to_string());
+    assert_eq!(calc.get_output(), &error_string);
+    if check_is_empty {
+        assert!(calc.get_stack().is_empty());
+    }
+}
+
+#[test]
+fn test_errors() {
+    eval_error_test_code(" + ".to_string(), "stack-underflow\n".to_string(), true, DEFAULT_STACK_SIZE);
+    eval_error_test_code("1 + ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("- ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("1 - ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("*".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("1 * ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code(" / ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("1 / ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("dup ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("swap ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("rot ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("drop ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("1 swap ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("over ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("1 over ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code("4 0 / ".to_string(), "division-by-zero\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code(
+        "1 2 3 4 5 . cr 5 6 ".to_string(),
+        "5 \nstack-overflow\n".to_string(),
+        false,5
+    );
 }
