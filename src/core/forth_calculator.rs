@@ -258,12 +258,11 @@ impl ForthCalculator {
             let result = self.process_single_token(token, output);
             if let Err(error) = result {
                 let token_parts: Vec<&str> = token.split('_').collect();
-                if token_parts.len() > 1  && self.word_registry.contains_key(token_parts[0]){
+                if token_parts.len() > 1 && self.word_registry.contains_key(token_parts[0]) {
                     self.handle_word_lookup(token, output);
                 } else {
                     self.add_string_output_error(output, error);
                 }
-                
             }
         }
     }

@@ -405,25 +405,106 @@ fn eval_error_test_code(code: String, error_string: String, check_is_empty: bool
 
 #[test]
 fn test_errors() {
-    eval_error_test_code(" + ".to_string(), "stack-underflow\n".to_string(), true, DEFAULT_STACK_SIZE);
-    eval_error_test_code("1 + ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("- ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("1 - ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("*".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("1 * ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code(" / ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("1 / ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("dup ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("swap ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("rot ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("drop ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("1 swap ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("over ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("1 over ".to_string(), "stack-underflow\n".to_string(), true,DEFAULT_STACK_SIZE);
-    eval_error_test_code("4 0 / ".to_string(), "division-by-zero\n".to_string(), true,DEFAULT_STACK_SIZE);
+    eval_error_test_code(
+        " + ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "1 + ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "- ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "1 - ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "*".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "1 * ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        " / ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "1 / ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "dup ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "swap ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "rot ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "drop ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "1 swap ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "over ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "1 over ".to_string(),
+        "stack-underflow\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
+    eval_error_test_code(
+        "4 0 / ".to_string(),
+        "division-by-zero\n".to_string(),
+        true,
+        DEFAULT_STACK_SIZE,
+    );
     eval_error_test_code(
         "1 2 3 4 5 . cr 5 6 ".to_string(),
         "5 \nstack-overflow\n".to_string(),
-        false,5
+        false,
+        5,
     );
 }
